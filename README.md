@@ -70,7 +70,11 @@ composer install
 ### 3️⃣ Install Frontend Dependencies
 ```bash
 npm install
-```  
+```
+
+```bash
+npm run build
+``` 
 
 ---
 
