@@ -1,61 +1,142 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+    <a href="https://laravel.com" target="_blank">
+        <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
+    </a>
 </p>
 
-## About Laravel
+<p align="center">
+    <a href="https://github.com/laravel/framework/actions">
+        <img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status">
+    </a>
+    <a href="https://packagist.org/packages/laravel/framework">
+        <img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads">
+    </a>
+    <a href="https://packagist.org/packages/laravel/framework">
+        <img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version">
+    </a>
+    <a href="https://packagist.org/packages/laravel/framework">
+        <img src="https://img.shields.io/packagist/l/laravel/framework" alt="License">
+    </a>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# **E-Learning Management System** 🎓  
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+A role-based community management platform built with Laravel, featuring Admin and Observers dashboards.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## **Table of Contents**
+1. [Features](#features)
+2. [Prerequisites](#prerequisites)
+3. [Installation](#installation)
+4. [Configuration](#configuration)
+5. [Testing the Application](#testing-the-application)
+6. [Usage](#usage)
+7. [License](#license)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## **Features**
+✅ Role-based authentication (Admin, Observer)  
+✅ Dashboard for each user type  
+✅ Profile management  
+✅ Secure authentication (Login, Logout, Registration)  
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## **Prerequisites**
+Before setting up the project, make sure you have the following installed:
 
-## Laravel Sponsors
+- **PHP (>= 8.0)**  
+- **Composer**  
+- **MySQL / MariaDB**  
+- **Node.js** (for frontend assets)  
+- **Git**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## **Installation**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/brindadbc/observatoire_territoriale_cdc_cam  
+```
+```bash
+cd observatoire_territoriale_cdc_cam  
+```
+### 2️⃣ Install PHP Dependencies
+```bash
+composer install 
+``` 
 
-## Contributing
+### 3️⃣ Install Frontend Dependencies
+```bash
+npm install
+```  
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## **Configuration**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1️⃣ Create `.env` File
+Copy the example environment file:
+```bash
+cp .env.example .env  
+```
 
-## Security Vulnerabilities
+### 2️⃣ Generate Application Key
+```bash
+php artisan key:generate  
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3️⃣ Set Up Database
+Update your `.env` file with the correct database credentials:
 
-## License
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=cdc_territoriale
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 4️⃣ Migrate & Seed Database
+```bash
+php artisan migrate --seed  
+```
+
+This will create a default **Admin** user: 
+
+- **Email:** `admin@cdc.com`  
+- **Password:** `password`  
+
+
+---
+
+## **Testing the Application**
+
+### 1️⃣ Start the Development Server
+```bash
+php artisan serve  
+```
+
+The application should now be accessible at `http://127.0.0.1:8000`.
+
+### 2️⃣ Access the Application
+- **Admin Login:**  
+
+  - Email: `admin@cdc.com`  
+  - Password: `password`  
+
+
+- **Observers** Register a new user or seed additional roles.
+
+---
+
+## **Usage**
+- **Admin** → Manages Communes, Statiques, Debts, etc  
+- **Observer** → Checks statistiques & others  
+
+---
+
+## **License**
+This project is open-source and available under the [MIT License](LICENSE).
