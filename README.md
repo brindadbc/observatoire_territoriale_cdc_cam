@@ -19,7 +19,7 @@
     </a>
 </p>
 
-# **E-Learning Management System** 🎓  
+# **E-Community Management System** 🎓  
 
 A role-based community management platform built with Laravel, featuring Admin and Observers dashboards.
 
