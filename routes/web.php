@@ -1,10 +1,11 @@
 <?php
 
+use App\Http\Controllers\CommunesController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
-Route::resource('communes', 'CommunesController::class');
+Route::resource('communes', CommunesController::class);
     
 
 Route::view('dashboard', 'dashboard')

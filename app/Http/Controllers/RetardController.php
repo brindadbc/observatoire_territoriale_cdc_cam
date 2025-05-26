@@ -3,18 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Commune;
 
-class CommunesController extends Controller
+class RetardController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-
-        // Retourner la vue avec les communes
-        return view('communes.index', compact('communes'));
+        return view('retards.index');
     }
 
     /**
@@ -22,7 +19,7 @@ class CommunesController extends Controller
      */
     public function create()
     {
-        //
+        return view('retards.create');
     }
 
     /**
@@ -30,17 +27,13 @@ class CommunesController extends Controller
      */
     public function store(Request $request)
     {
-        // Validation des données
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'population' => 'required|integer',
-            'id_departement' => 'required|exists:departements,id'
+        'type_retard' => 'required|string',
+        'duree_jours' => 'required|integer',
+        'date_constat' => 'required|date',
+        'date_retard' => 'required|date',
+        'id_commune' => 'required|integer',
         ]);
-
-       
-        // Redirection vers la liste des  avec un message de succès
-        return redirect()->route('communes.index')->with('success', 'Commune créée avec succès.');
     }
 
     /**
@@ -48,11 +41,7 @@ class CommunesController extends Controller
      */
     public function show(string $id)
     {
-        // Récupérer la commune par son ID
-        $commune = Commune::findOrFail($id);
-
-        // Retourner la vue avec la commune
-        return view('communes.show', compact('commune'));
+        //
     }
 
     /**
@@ -60,11 +49,7 @@ class CommunesController extends Controller
      */
     public function edit(string $id)
     {
-        // Récupérer la commune par son ID
-        $commune = Commune::findOrFail($id);
-
-        // Retourner la vue avec la commune
-        return view('communes.edit', compact('commune'));
+        return view('edit.index');
     }
 
     /**
@@ -72,15 +57,14 @@ class CommunesController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        // Validation des données
         $request->validate([
-            'nom' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'population' => 'required|integer',
-            'id_departement' => 'required|exists:departements,id'
+            'type_retard' => 'required|string',
+            'duree_jours' => 'required|integer',
+            'date_constat' => 'required|date',
+            'date_retard' => 'required|date',
+        'id_commune' => 'required|integer',
         ]);
-
-        // Récupérer la commune par son ID
+   // Récupérer la commune par son ID
         $commune = Commune::findOrFail($id);
 
         // Mettre à jour la commune
@@ -88,6 +72,7 @@ class CommunesController extends Controller
 
         // Redirection vers la liste des communes avec un message de succès
         return redirect()->route('communes.index')->with('success', 'Commune mise à jour avec succès.');
+
     }
 
     /**
