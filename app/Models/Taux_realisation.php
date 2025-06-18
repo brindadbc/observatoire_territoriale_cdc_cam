@@ -13,7 +13,7 @@ class Taux_realisation extends Model
     protected $fillable = [
         'pourcentage',
         'annee_exercice',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $casts = [

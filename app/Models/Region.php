@@ -22,7 +22,7 @@ class Region extends Model
      
     public function communes()
     {
-        return $this->hasManyThrough(Commune::class, Departement::class, 'id_region', 'id_departement');
+        return $this->hasManyThrough(Commune::class, Departement::class, 'region_id', 'departement_id');
     }
 }
 

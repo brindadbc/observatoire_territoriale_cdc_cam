@@ -16,7 +16,7 @@ class Receveur extends Model
         'matricule',
         'date_prise_fonction',
         'telephone',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $dates = [

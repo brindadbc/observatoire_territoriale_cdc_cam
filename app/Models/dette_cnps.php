@@ -13,7 +13,7 @@ class dette_cnps extends Model
     protected $fillable = [
         'montant',
         'date_evaluation',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $dates = [

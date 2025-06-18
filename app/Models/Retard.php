@@ -15,7 +15,7 @@ class Retard extends Model
         'duree_jours',
         'date_constat',
         'date_retard',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $dates = [

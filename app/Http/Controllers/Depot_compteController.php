@@ -2,115 +2,102 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commune;
 use Illuminate\Http\Request;
 use App\Models\Depot_Compte;
+use App\Models\Receveur;
 
 class Depot_compteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Affichage de la liste des dépôts de comptes
      */
     public function index()
     {
-        // Récupérer tous les dépôts de compte
-        $depots = Depot_Compte::all();
-
-        // Retourner la vue avec les dépôts de compte
-        return view('depot_compte.index', compact('depots'));
+        $annee = request('annee', date('Y'));
+        
+        $depots = Depot_compte::with(['commune.departement.region'])
+            ->whereYear('date_depot', $annee)
+            ->orderBy('date_depot', 'desc')
+            ->paginate(20);
+        
+        return view('depots-comptes.index', compact('depots', 'annee'));
     }
-
+    
     /**
-     * Show the form for creating a new resource.
+     * Affichage du formulaire de création
      */
     public function create()
     {
-        // Afficher le formulaire de création
-        return view('depot_compte.create');
+        $communes = Commune::with('departement')->orderBy('nom')->get();
+        
+        return view('depots-comptes.create', compact('communes'));
     }
-
+    
     /**
-     * Store a newly created resource in storage.
+     * Enregistrement d'un nouveau dépôt
      */
     public function store(Request $request)
     {
-        // Validation des données
         $request->validate([
-            'nom' => 'required|string|max:255',  
-            'annee_exercice' => 'required|integer',
-            'validation' => 'required|boolean',
-            'id_receveur' => 'required|exists:receveurs,id',
-            'id_commune' => 'required|exists:communes,id'
+            'commune_id' => 'required|exists:communes,id',
+            'date_depot' => 'required|date',
+            'annee_exercice' => 'required|integer|min:2020|max:' . (date('Y') + 1),
+            'validation' => 'boolean'
         ]);
-
-        // Création du dépôt de compte
-        Depot_Compte::create($request->all());
-
-
-        // Redirection vers la liste des dépôts de compte avec un message de succès
-        return redirect()->route('depot_compte.index')->with('success', 'Dépôt de compte créé avec succès.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        // Récupérer le dépôt de compte par son ID
-        $depot = Depot_Compte::findOrFail($id);
-
-        // Retourner la vue avec le dépôt de compte
-        return view('depot_compte.show', compact('depot'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        // Récupérer le dépôt de compte par son ID
-        $depot = Depot_Compte::findOrFail($id);
-
-        // Retourner la vue avec le dépôt de compte
-        return view('depot_compte.edit', compact('depot'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
         
-          // Validation des données
-        $request->validate([
-           'nom' => 'required|string|max:255',  
-            'annee_exercice' => 'required|integer',
-            'validation' => 'required|boolean',
-            'id_receveur' => 'required|exists:receveurs,id',
-            'id_commune' => 'required|exists:communes,id'
-        ]);
-
-        // Récupérer le dépôt de compte par son ID
-        $depot = Depot_Compte::findOrFail($id);
-
-        // Mettre à jour le dépôt de compte
-        $depot->update($request->all());
-
-        // Redirection vers la liste des dépôts de compte avec un message de succès
-        return redirect()->route('depot_compte.index')->with('success', 'Dépôt de compte mis à jour avec succès.');
+        Depot_compte::create($request->all());
+        
+        return redirect()->route('depots-comptes.index')
+            ->with('success', 'Dépôt de compte enregistré avec succès.');
     }
-
+    
     /**
-     * Remove the specified resource from storage.
+     * Affichage des détails d'un dépôt
      */
-    public function destroy(string $id)
+    public function show(Depot_compte $depotCompte)
     {
-        // Récupérer le dépôt de compte par son ID
-        $depot = Depot_Compte::findOrFail($id);
-
-        // Supprimer le dépôt de compte
-        $depot->delete();
-
-        // Redirection vers la liste des dépôts de compte avec un message de succès
-        return redirect()->route('depot_compte.index')->with('success', 'Dépôt de compte supprimé avec succès.');   
+        $depotCompte->load('commune.departement.region');
+        
+        return view('depots-comptes.show', compact('depotCompte'));
+    }
+    
+    /**
+     * Affichage du formulaire d'édition
+     */
+    public function edit(Depot_compte $depotCompte)
+    {
+        $communes = Commune::with('departement')->orderBy('nom')->get();
+        
+        return view('depots-comptes.edit', compact('depotCompte', 'communes'));
+    }
+    
+    /**
+     * Mise à jour d'un dépôt
+     */
+    public function update(Request $request, Depot_compte $depotCompte)
+    {
+        $request->validate([
+            'commune_id' => 'required|exists:communes,id',
+            'date_depot' => 'required|date',
+            'annee_exercice' => 'required|integer|min:2020|max:' . (date('Y') + 1),
+            'validation' => 'boolean'
+        ]);
+        
+        $depotCompte->update($request->all());
+        
+        return redirect()->route('depots-comptes.index')
+            ->with('success', 'Dépôt de compte mis à jour avec succès.');
+    }
+    
+    /**
+     * Suppression d'un dépôt
+     */
+    public function destroy(Depot_compte $depotCompte)
+    {
+        $depotCompte->delete();
+        
+        return redirect()->route('depots-comptes.index')
+            ->with('success', 'Dépôt de compte supprimé avec succès.');
     }
 }

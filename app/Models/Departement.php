@@ -29,4 +29,4 @@ class Departement extends Model
     {
         return $this->hasMany(Commune::class);
     }
-}
+} 

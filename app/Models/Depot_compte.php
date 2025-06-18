@@ -13,8 +13,8 @@ class Depot_compte extends Model
         'date_depot',
         'annee_exercice',
         'validation',
-        'id_commune',
-        'id_receveur'
+        'commune_id',
+        'receveur_id'
     ];
     
     protected $dates = [
@@ -30,7 +30,7 @@ class Depot_compte extends Model
      
     public function commune()
     {
-        return $this->belongsTo(Commune::class, 'id_commune');
+        return $this->belongsTo(Commune::class, 'commune_id');
     }
     
     

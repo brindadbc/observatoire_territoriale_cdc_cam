@@ -15,8 +15,8 @@ class realisation extends Model
         'annee_exercice',
         'montant',
         'date_realisation',
-        'id_prevision',
-        'id_commune'
+        'prevision_id',
+        'commune_id'
     ];
     
     protected $dates = [

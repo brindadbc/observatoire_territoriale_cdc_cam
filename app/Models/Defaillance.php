@@ -16,7 +16,7 @@ class Defaillance extends Model
         'date_constat',
         'gravite',
         'est_resolue',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $dates = [

@@ -11,9 +11,9 @@ class Commune extends Model
 
     protected $fillable = [
         'nom',
-        'type',
-        'population',
-        'id_departement'
+        'code',
+        'telephone',
+        'departement_id'
     ];
     
     /**
@@ -29,7 +29,7 @@ class Commune extends Model
      
     public function region()
     {
-        return $this->belongsTo(Region::class, 'id_region')
+        return $this->belongsTo(Region::class, 'region_id')
             ->withDefault(['nom' => 'Région non définie']);
     }
     
@@ -65,6 +65,18 @@ class Commune extends Model
         return $this->hasMany(Dette_cnps::class);
     }
     
+    public function dettesFeicom()
+    {
+        return $this->hasMany(Dette_feicom::class);
+    }
+    public function dettesSalariale()
+    {
+        return $this->hasMany(Dette_salariale::class);
+    }
+    public function dettesFiscale()
+    {
+        return $this->hasMany(Dette_fiscale::class);
+    }
     
     
      //Obtenir les prévisions de cette commune

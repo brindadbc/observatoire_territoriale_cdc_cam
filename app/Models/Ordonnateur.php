@@ -15,7 +15,7 @@ class Ordonnateur extends Model
         'date_prise_fonction',
         'fonction',
         'telephone',
-        'id_commune'
+        'commune_id'
     ];
     
     protected $dates = [

@@ -13,7 +13,7 @@ class Prevision extends Model
     protected $fillable = [
         'annee_exercice',
         'montant',
-        'id_commune'
+        'commune_id'
     ];
     
     
