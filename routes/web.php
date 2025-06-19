@@ -33,6 +33,8 @@ Route::view('profile', 'profile')
 
 require __DIR__.'/auth.php';
 
+Route::view('/contact', 'contact');
+
 // Redirection de la page d'accueil vers le tableau de bord
 Route::get('/dashboard', function () {
     return redirect()->route('dashboard.index');
@@ -43,6 +45,8 @@ Route::get('/dashboard', function () {
 | TABLEAU DE BORD PRINCIPAL
 |--------------------------------------------------------------------------
 */
+
+
 
 // Tableau de bord principal avec statistiques générales
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -59,29 +63,50 @@ Route::get('/dashboard/{annee}', [DashboardController::class, 'index'])
 |--------------------------------------------------------------------------
 */
 
-// Affichage de toutes les régions
-Route::get('/regions', [RegionController::class, 'index'])
-    ->name('regions.index');
+// // Affichage de toutes les régions
+// Route::get('/regions', [RegionController::class, 'index'])
+//     ->name('regions.index');
 
-// Détails d'une région spécifique
-Route::get('/regions/{region}', [RegionController::class, 'show'])
-    ->name('regions.show');
+// // Détails d'une région spécifique
+// Route::get('/regions/{region}', [RegionController::class, 'show'])
+//     ->name('regions.show');
 
-// Détails d'une région avec filtrage par année
-Route::get('/regions/{region}/{annee}', [RegionController::class, 'show'])
+// // Détails d'une région avec filtrage par année
+// Route::get('/regions/{region}/{annee}', [RegionController::class, 'show'])
+//     ->name('regions.show.annee')
+//     ->where('annee', '[0-9]{4}');
+
+// // Statistiques détaillées d'une région (AJAX)
+// Route::get('/api/regions/{region}/stats', [RegionController::class, 'getStats'])
+//     ->name('api.regions.stats');
+
+// // Données pour les graphiques d'une région (AJAX)
+// Route::get('/api/regions/{region}/graphiques/{annee}', [RegionController::class, 'getGraphiquesData'])
+//     ->name('api.regions.graphiques')
+//     ->where('annee', '[0-9]{4}');
+
+
+
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('regions/{region}/stats', [RegionController::class, 'getStats'])
+        ->name('regions.stats');
+    Route::get('regions/{region}/graphiques/{annee}', [RegionController::class, 'getGraphiquesData'])
+        ->name('regions.graphiques')
+        ->where('annee', '[0-9]{4}');
+    Route::get('regions/{region}/data', [RegionController::class, 'getRegionData'])
+        ->name('regions.data');
+});
+
+// Routes personnalisées pour les régions (AVANT resource)
+Route::get('regions/{region}/{annee}', [RegionController::class, 'show'])
     ->name('regions.show.annee')
     ->where('annee', '[0-9]{4}');
 
-// Statistiques détaillées d'une région (AJAX)
-Route::get('/api/regions/{region}/stats', [RegionController::class, 'getStats'])
-    ->name('api.regions.stats');
-
-// Données pour les graphiques d'une région (AJAX)
-Route::get('/api/regions/{region}/graphiques/{annee}', [RegionController::class, 'getGraphiquesData'])
-    ->name('api.regions.graphiques')
-    ->where('annee', '[0-9]{4}');
+// Routes CRUD standard pour les régions
+Route::resource('regions', RegionController::class);
 
 
+    
     /*
 |--------------------------------------------------------------------------
 | Routes pour la gestion des Régions
@@ -91,17 +116,17 @@ Route::get('/api/regions/{region}/graphiques/{annee}', [RegionController::class,
 // Route::middleware(['auth'])->group(function () {
     
     // Routes CRUD standard pour les régions
-    Route::resource('regions', RegionController::class);
+    // Route::resource('regions', RegionController::class);
 
-    Route::prefix('regions')->name('regions.')->group(function () {
-    Route::get('/', [RegionController::class, 'index'])->name('index');
-    Route::get('/create', [RegionController::class, 'create'])->name('create');
-    Route::post('/', [RegionController::class, 'store'])->name('store');
-    Route::get('/{region}', [RegionController::class, 'show'])->name('show');
-    Route::get('/{region}/edit', [RegionController::class, 'edit'])->name('edit');
-    Route::put('/{region}', [RegionController::class, 'update'])->name('update');
-    Route::delete('/{region}', [RegionController::class, 'destroy'])->name('destroy');
-});
+//     Route::prefix('regions')->name('regions.')->group(function () {
+//     Route::get('/', [RegionController::class, 'index'])->name('index');
+//     // Route::get('/create', [RegionController::class, 'create'])->name('create');
+//     Route::post('/', [RegionController::class, 'store'])->name('store');
+//     Route::get('/{region}', [RegionController::class, 'show'])->name('show');
+//     Route::get('/{region}/edit', [RegionController::class, 'edit'])->name('edit');
+//     Route::put('/{region}', [RegionController::class, 'update'])->name('update');
+//     Route::delete('/{region}', [RegionController::class, 'destroy'])->name('destroy');
+// });
 
 //     Route::get('/regions/create', [RegionController::class, 'create'])->name('regions.create');
 // Route::post('/regions', [RegionController::class, 'store'])->name('regions.store');
@@ -110,14 +135,7 @@ Route::get('/api/regions/{region}/graphiques/{annee}', [RegionController::class,
 //     Route::get('regions/{region}/data', [RegionController::class, 'getRegionData'])
 //         ->name('regions.data');
         
-     // Si vous utilisez l'observatoire, ajoutez ces routes :
-    // Route::get('observatoire/regions', [RegionController::class, 'index'])
-    //     ->name('observatoire.region');
-    // Route::get('observatoire/regions/{region}', [RegionController::class, 'show'])
-    //     ->name('observatoire.region');
-        // Route::get('observatoire/regions/{region?}', [RegionController::class, 'method'])->name('observatoire.region');
-// });
-
+   
 /*
 |--------------------------------------------------------------------------
 | GESTION DES DÉPARTEMENTS
@@ -158,6 +176,8 @@ Route::get('/api/departements/{departement}/evolution', [DepartementController::
 // Affichage de toutes les communes
 Route::get('/communes', [CommunesController::class, 'index'])
     ->name('communes.index');
+
+Route::resource('communes', CommunesController::class);
 
 // Communes d'un département spécifique
 Route::get('/departements/{departement}/communes', [CommunesController::class, 'parDepartement'])

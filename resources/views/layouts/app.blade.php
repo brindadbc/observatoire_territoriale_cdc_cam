@@ -1109,6 +1109,18 @@ body {
                                 Régions
                             </a>
                         </li>
+                        <li class="{{ request()->is('departements*') ? 'active' : '' }}">
+                            <a href="{{ route('departements.index') }}">
+                                <i class="fas fa-map-marked-alt"></i>
+                                Departements
+                            </a>
+                        </li>
+                        <li class="{{ request()->is('communes*') ? 'active' : '' }}">
+                            <a href="{{ route('communes.index') }}">
+                                <i class="fas fa-map-marked-alt"></i>
+                                Communes
+                            </a>
+                        </li>
                     </ul>
                 </div>
 

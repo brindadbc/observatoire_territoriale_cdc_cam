@@ -1,4 +1,4 @@
-{{-- @extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Commune ' . $commune->nom . ' - Observatoire des Collectivités')
 @section('page-title', 'Commune de ' . $commune->nom)
@@ -318,11 +318,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-@endsection --}}
+@endsection
 
 
 
 
+
+
+
+{{-- 
 @extends('layouts.app')
 
 @section('title', 'Commune - ' . $commune->nom)
@@ -714,4 +718,4 @@ document.addEventListener('DOMContentLoaded', function() {
         color: #495057;
     }
 </style>
-@endpush
+@endpush --}}

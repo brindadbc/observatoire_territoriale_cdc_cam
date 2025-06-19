@@ -673,7 +673,7 @@
                     <li><a href="#">About</a></li>
                     <li><a href="#">Statistiques</a></li>
                     
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="/contact">Contact</a></li>
                     <li class="auth-buttons">
                         <!-- <button class="login-btn" id="loginBtn">Connexion</button> -->
                         <!-- <button class="register-btn" id="registerBtn">Inscription</button> -->

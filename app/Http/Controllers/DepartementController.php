@@ -694,9 +694,9 @@ class DepartementController extends Controller
     private function calculateCommuneDettes($communeId, $annee)
     {
         return DB::table('dette_cnps')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant') +
-               DB::table('dette_fiscale')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant') +
-               DB::table('dette_feicom')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant') +
-               DB::table('dette_salariale')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant');
+               DB::table('dette_fiscales')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant') +
+               DB::table('dette_feicoms')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant') +
+               DB::table('dette_salariales')->where('commune_id', $communeId)->whereYear('date_evaluation', $annee)->sum('montant');
     }
 
     /**
