@@ -594,7 +594,7 @@ class RegionController extends Controller
         
         // Vérifiez que la vue existe
         if (!view()->exists('regions.create')) {
-            \Log::error('La vue regions.create n\'existe pas');
+            \Log::error("La vue regions.create n\'existe pas'");
             abort(404, 'Vue non trouvée');
         }
         
