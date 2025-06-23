@@ -1,4 +1,3 @@
-resources/views/regions/index.blade.php
 @extends('layouts.app')
 
 @section('title', 'Gestion des Régions')

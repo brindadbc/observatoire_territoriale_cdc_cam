@@ -702,25 +702,129 @@ class RegionController extends Controller
         })->where('annee_exercice', $annee)->avg('pourcentage') ?? 0;
     }
     
-    private function getTotalDettesCNPS($regionId, $annee)
-    {
-        return dette_cnps::whereHas('commune.departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        })->whereYear('date_evaluation', $annee)->sum('montant') ?? 0;
-    }
+    // private function getTotalDettesCNPS($regionId, $annee)
+    // {
+    //     return dette_cnps::whereHas('commune.departement', function($q) use ($regionId) {
+    //         $q->where('region_id', $regionId);
+    //     })->whereYear('date_evaluation', $annee)->sum('montant') ?? 0;
+    // }
     
-    private function getConformiteDepots($regionId, $annee)
-    {
-        $total = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        })->whereYear('date_depot', $annee)->count();
+    // private function getConformiteDepots($regionId, $annee)
+    // {
+    //     $total = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
+    //         $q->where('region_id', $regionId);
+    //     })->whereYear('date_depot', $annee)->count();
         
-        $conformes = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        })->whereYear('date_depot', $annee)->where('validation', true)->count();
+    //     $conformes = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
+    //         $q->where('region_id', $regionId);
+    //     })->whereYear('date_depot', $annee)->where('validation', true)->count();
         
-        return $total > 0 ? ($conformes / $total) * 100 : 0;
-    }
+    //     return $total > 0 ? ($conformes / $total) * 100 : 0;
+    // }
+
+
+
+    private function getTotalDettesCNPS($regionId, $annee)
+{
+    return dette_cnps::whereHas('commune.departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })
+    ->whereYear('date_evaluation', $annee)
+    ->sum('montant') ?? 0;
+}
+
+// ✅ CORRECT - Solution 2: Utiliser filter() sur la collection
+private function getEtatComptesParCommune($regionId, $annee)
+{
+    return Commune::whereHas('departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })->with(['departement', 'receveurs', 'ordonnateurs', 'depotsComptes', 'dettesCnps', 'previsions', 'realisations', 'tauxRealisations'])
+    ->get()
+    ->map(function($commune) use ($annee) {
+        // Utiliser filter() au lieu de whereYear() sur les collections
+        $depotCompte = $commune->depotsComptes
+            ->where('annee_exercice', $annee)->first();
+            
+        // Pour les dates, utiliser filter() avec une fonction de callback
+        $detteCnps = $commune->dettesCnps
+            ->filter(function($dette) use ($annee) {
+                return $dette->date_evaluation && 
+                       \Carbon\Carbon::parse($dette->date_evaluation)->year == $annee;
+            })->first();
+            
+        return [
+            'id' => $commune->id,
+            'code' => $commune->code,
+            'commune' => $commune->nom,
+            'departement' => $commune->departement->nom,
+            'telephone' => $commune->telephone,
+            'receveur' => $commune->receveurs->first()?->nom,
+            'ordonnateur' => $commune->ordonnateurs->first()?->nom,
+            'depot_date' => $depotCompte?->date_depot,
+            'depot_valide' => $depotCompte?->validation ?? false,
+            'prevision' => $commune->previsions->where('annee_exercice', $annee)->first()?->montant,
+            'realisation' => $commune->realisations->where('annee_exercice', $annee)->sum('montant'),
+            'dette_cnps' => $detteCnps?->montant ?? 0,
+            'taux_realisation' => $commune->tauxRealisations->where('annee_exercice', $annee)->first()?->pourcentage ?? 0,
+            'status' => $this->getStatusCommune($commune, $annee)
+        ];
+    });
+}
+
+// ✅ CORRECT - Méthode getDefaillancesRegion corrigée
+private function getDefaillancesRegion($regionId, $annee)
+{
+    return Defaillance::whereHas('commune.departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })
+    ->whereYear('date_constat', $annee) // whereYear() dans la requête principale
+    ->with('commune')
+    ->get()
+    ->map(function($defaillance) {
+        return [
+            'commune' => $defaillance->commune->nom,
+            'type_defaillance' => $defaillance->type_defaillance,
+            'date_constat' => $defaillance->date_constat,
+            'description' => $defaillance->description,
+            'gravite' => $defaillance->gravite ?? 'normale',
+            'status' => $defaillance->est_resolue ? 'Résolu' : 'Non résolu'
+        ];
+    });
+}
+
+// ✅ CORRECT - Alternative avec eager loading optimisé
+private function getConformiteDepots($regionId, $annee)
+{
+    // Option 1: Requête directe (plus efficace)
+    $total = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })->whereYear('date_depot', $annee)->count();
+    
+    $conformes = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })->whereYear('date_depot', $annee)->where('validation', true)->count();
+    
+    return $total > 0 ? ($conformes / $total) * 100 : 0;
+}
+
+// ✅ ALTERNATIVE - Si vous voulez vraiment utiliser les collections
+private function getConformiteDepotsAvecCollection($regionId, $annee)
+{
+    $depots = Depot_compte::whereHas('commune.departement', function($q) use ($regionId) {
+        $q->where('region_id', $regionId);
+    })->get();
+    
+    // Filtrer par année sur la collection
+    $depotsAnnee = $depots->filter(function($depot) use ($annee) {
+        return $depot->date_depot && 
+               \Carbon\Carbon::parse($depot->date_depot)->year == $annee;
+    });
+    
+    $total = $depotsAnnee->count();
+    $conformes = $depotsAnnee->where('validation', true)->count();
+    
+    return $total > 0 ? ($conformes / $total) * 100 : 0;
+}
     
     private function getNbCommunesParRegion($regionId)
     {
@@ -908,55 +1012,55 @@ class RegionController extends Controller
             });
     }
     
-    private function getEtatComptesParCommune($regionId, $annee)
-    {
-        return Commune::whereHas('departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        })->with(['departement', 'receveurs', 'ordonnateurs', 'depotsComptes', 'dettesCnps', 'previsions', 'realisations', 'tauxRealisations'])
-        ->get()
-        ->map(function($commune) use ($annee) {
-            $depotCompte = $commune->depotsComptes
-                ->where('annee_exercice', $annee)->first();
-            $detteCnps = $commune->dettesCnps
-                ->whereYear('date_evaluation', $annee)->first();
+    // private function getEtatComptesParCommune($regionId, $annee)
+    // {
+    //     return Commune::whereHas('departement', function($q) use ($regionId) {
+    //         $q->where('region_id', $regionId);
+    //     })->with(['departement', 'receveurs', 'ordonnateurs', 'depotsComptes', 'dettesCnps', 'previsions', 'realisations', 'tauxRealisations'])
+    //     ->get()
+    //     ->map(function($commune) use ($annee) {
+    //         $depotCompte = $commune->depotsComptes
+    //             ->where('annee_exercice', $annee)->first();
+    //         $detteCnps = $commune->dettesCnps
+    //             ->whereYear('date_evaluation', $annee)->first();
                 
-            return [
-                'id' => $commune->id,
-                'code' => $commune->code,
-                'commune' => $commune->nom,
-                'departement' => $commune->departement->nom,
-                'telephone' => $commune->telephone,
-                'receveur' => $commune->receveurs->first()?->nom,
-                'ordonnateur' => $commune->ordonnateurs->first()?->nom,
-                'depot_date' => $depotCompte?->date_depot,
-                'depot_valide' => $depotCompte?->validation ?? false,
-                'prevision' => $commune->previsions->where('annee_exercice', $annee)->first()?->montant,
-                'realisation' => $commune->realisations->where('annee_exercice', $annee)->sum('montant'),
-                'dette_cnps' => $detteCnps?->montant ?? 0,
-                'taux_realisation' => $commune->tauxRealisations->where('annee_exercice', $annee)->first()?->pourcentage ?? 0,
-                'status' => $this->getStatusCommune($commune, $annee)
-            ];
-        });
-    }
+    //         return [
+    //             'id' => $commune->id,
+    //             'code' => $commune->code,
+    //             'commune' => $commune->nom,
+    //             'departement' => $commune->departement->nom,
+    //             'telephone' => $commune->telephone,
+    //             'receveur' => $commune->receveurs->first()?->nom,
+    //             'ordonnateur' => $commune->ordonnateurs->first()?->nom,
+    //             'depot_date' => $depotCompte?->date_depot,
+    //             'depot_valide' => $depotCompte?->validation ?? false,
+    //             'prevision' => $commune->previsions->where('annee_exercice', $annee)->first()?->montant,
+    //             'realisation' => $commune->realisations->where('annee_exercice', $annee)->sum('montant'),
+    //             'dette_cnps' => $detteCnps?->montant ?? 0,
+    //             'taux_realisation' => $commune->tauxRealisations->where('annee_exercice', $annee)->first()?->pourcentage ?? 0,
+    //             'status' => $this->getStatusCommune($commune, $annee)
+    //         ];
+    //     });
+    // }
     
-    private function getDefaillancesRegion($regionId, $annee)
-    {
-        return Defaillance::whereHas('commune.departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        })->whereYear('date_constat', $annee)
-        ->with('commune')
-        ->get()
-        ->map(function($defaillance) {
-            return [
-                'commune' => $defaillance->commune->nom,
-                'type_defaillance' => $defaillance->type_defaillance,
-                'date_constat' => $defaillance->date_constat,
-                'description' => $defaillance->description,
-                'gravite' => $defaillance->gravite ?? 'normale',
-                'status' => $defaillance->est_resolue ? 'Résolu' : 'Non résolu'
-            ];
-        });
-    }
+    // private function getDefaillancesRegion($regionId, $annee)
+    // {
+    //     return Defaillance::whereHas('commune.departement', function($q) use ($regionId) {
+    //         $q->where('region_id', $regionId);
+    //     })->whereYear('date_constat', $annee)
+    //     ->with('commune')
+    //     ->get()
+    //     ->map(function($defaillance) {
+    //         return [
+    //             'commune' => $defaillance->commune->nom,
+    //             'type_defaillance' => $defaillance->type_defaillance,
+    //             'date_constat' => $defaillance->date_constat,
+    //             'description' => $defaillance->description,
+    //             'gravite' => $defaillance->gravite ?? 'normale',
+    //             'status' => $defaillance->est_resolue ? 'Résolu' : 'Non résolu'
+    //         ];
+    //     });
+    // }
     
     private function getStatusCommune($commune, $annee)
     {

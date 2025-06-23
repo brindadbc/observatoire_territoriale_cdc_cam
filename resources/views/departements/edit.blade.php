@@ -5,6 +5,7 @@
 
 @section('content')
 <div class="departement-edit">
+
     <!-- Breadcrumb -->
     <div class="breadcrumb">
         <a href="{{ route('dashboard.index') }}">Tableau de bord</a>

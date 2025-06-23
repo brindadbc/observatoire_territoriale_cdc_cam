@@ -222,27 +222,33 @@ Route::get('/api/communes/{commune}/historique', [CommunesController::class, 'ge
 |--------------------------------------------------------------------------
 */
 
-Route::resource('depots-comptes', Depot_compteController::class);
+// Routes pour la gestion des dépôts de comptes
+Route::prefix('depot-comptes')->name('depot-comptes.')->group(function () {
+    // Routes CRUD classiques
+    Route::get('/', [Depot_compteController::class, 'index'])->name('index');
+    Route::get('/create', [Depot_compteController::class, 'create'])->name('create');
+    Route::post('/', [Depot_compteController::class, 'store'])->name('store');
+    Route::get('/{depotCompte}', [Depot_compteController::class, 'show'])->name('show');
+    Route::get('/{depotCompte}/edit', [Depot_compteController::class, 'edit'])->name('edit');
+    Route::put('/{depotCompte}', [Depot_compteController::class, 'update'])->name('update');
+    Route::delete('/{depotCompte}', [Depot_compteController::class, 'destroy'])->name('destroy');
+    
+    // Routes spécifiques
+    Route::get('/rapport/annuel', [Depot_compteController::class, 'rapport'])->name('rapport');
+    Route::post('/validation/bulk', [Depot_compteController::class, 'bulkValidation'])->name('bulk-validation');
+});
 
-// Affichage de tous les dépôts de comptes
-Route::get('/depots-comptes', [Depot_compteController::class, 'index'])
-    ->name('depots-comptes.index');
+// Alternative avec Route::resource si vous préférez
+/*
+Route::resource('depot-comptes', Depot_compteController::class, [
+    'parameters' => ['depot-comptes' => 'depotCompte']
+]);
 
-// Dépôts de comptes par commune
-Route::get('/communes/{commune}/depots-comptes', [Depot_compteController::class, 'parCommune'])
-    ->name('depots.commune');
+// Routes supplémentaires
+Route::get('depot-comptes/rapport/annuel', [Depot_compteController::class, 'rapport'])->name('depot-comptes.rapport');
+Route::post('depot-comptes/validation/bulk', [Depot_compteController::class, 'bulkValidation'])->name('depot-comptes.bulk-validation');
+*/
 
-// Détails d'un dépôt de compte
-Route::get('/depots-comptes/{depot}', [Depot_compteController::class, 'show'])
-    ->name('depots.show');
-
-// Validation d'un dépôt de compte
-Route::patch('/depots-comptes/{depot}/valider', [Depot_compteController::class, 'valider'])
-    ->name('depots.valider');
-
-// Rejet d'un dépôt de compte
-Route::patch('/depots-comptes/{depot}/rejeter', [Depot_compteController::class, 'rejeter'])
-    ->name('depots.rejeter');
 
 /*
 |--------------------------------------------------------------------------
@@ -301,6 +307,17 @@ Route::prefix('dettes-salariales')->name('dettes-salariales.')->group(function (
 */
 
 // Routes pour les receveurs
+// Route::prefix('receveurs')->name('receveurs.')->group(function () {
+//     Route::get('/', [ReceveurController::class, 'index'])->name('index');
+//     Route::get('/create', [ReceveurController::class, 'create'])->name('create');
+//     Route::post('/', [ReceveurController::class, 'store'])->name('store');
+//     Route::get('/{receveur}', [ReceveurController::class, 'show'])->name('show');
+//     Route::get('/{receveur}/edit', [ReceveurController::class, 'edit'])->name('edit');
+//     Route::put('/{receveur}', [ReceveurController::class, 'update'])->name('update');
+//     Route::delete('/{receveur}', [ReceveurController::class, 'destroy'])->name('destroy');
+// });
+
+// Routes pour les receveurs
 Route::prefix('receveurs')->name('receveurs.')->group(function () {
     Route::get('/', [ReceveurController::class, 'index'])->name('index');
     Route::get('/create', [ReceveurController::class, 'create'])->name('create');
@@ -309,6 +326,10 @@ Route::prefix('receveurs')->name('receveurs.')->group(function () {
     Route::get('/{receveur}/edit', [ReceveurController::class, 'edit'])->name('edit');
     Route::put('/{receveur}', [ReceveurController::class, 'update'])->name('update');
     Route::delete('/{receveur}', [ReceveurController::class, 'destroy'])->name('destroy');
+    
+    // Routes AJAX
+    Route::patch('/{receveur}/statut', [ReceveurController::class, 'changerStatut'])->name('changer-statut');
+    Route::patch('/{receveur}/commune', [ReceveurController::class, 'assignerCommune'])->name('assigner-commune');
 });
 
 // Routes pour les ordonnateurs

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +9,695 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @stack('styles')
     <style>
+
+        /* =================================
+   STYLE CSS POUR VUE COMMUNE
+   ================================= */
+
+/* Variables CSS */
+:root {
+    --primary-color: #2c5282;
+    --secondary-color: #4299e1;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --border-color: #e9ecef;
+    --text-muted: #6c757d;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+/* Container principal */
+.commune-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+}
+
+/* =================================
+   BREADCRUMB
+   ================================= */
+.breadcrumb {
+    background: white;
+    padding: 15px 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumb a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    margin: 0 8px;
+    color: var(--text-muted);
+}
+
+/* =================================
+   HEADER COMMUNE
+   ================================= */
+.commune-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.commune-info h2 {
+    margin: 0 0 15px 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+}
+
+.commune-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.meta-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.commune-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.btn-export {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-export:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.btn-edit:hover {
+    background: #e0a800;
+    transform: translateY(-2px);
+}
+
+/* =================================
+   SECTIONS GÉNÉRALES
+   ================================= */
+.responsables-section,
+.finances-section,
+.chart-section,
+.dettes-section,
+.problemes-section {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.responsables-section h3,
+.finances-section h3,
+.chart-section h3,
+.dettes-section h3 {
+    background: var(--light-color);
+    margin: 0;
+    padding: 20px 30px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* =================================
+   RESPONSABLES
+   ================================= */
+.responsables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.responsable-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.responsable-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+.responsable-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.responsable-info h4 {
+    margin: 0 0 5px 0;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.responsable-info p {
+    margin: 0;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* =================================
+   FINANCES
+   ================================= */
+.finances-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.finance-card {
+    padding: 25px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.finance-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-color);
+}
+
+.finance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.finance-card.budget {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.finance-card.budget::before {
+    background: var(--info-color);
+}
+
+.finance-card.realisation {
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+}
+
+.finance-card.realisation::before {
+    background: #9c27b0;
+}
+
+.finance-card.taux {
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+}
+
+.finance-card.evaluation {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+}
+
+.finance-card.evaluation::before {
+    background: var(--warning-color);
+}
+
+.finance-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.finance-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+.finance-header i {
+    font-size: 1.2rem;
+    opacity: 0.7;
+}
+
+.finance-amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.taux-value.good {
+    color: var(--success-color);
+}
+
+.taux-value.medium {
+    color: var(--warning-color);
+}
+
+.taux-value.bad {
+    color: var(--danger-color);
+}
+
+.finance-evaluation {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* =================================
+   GRAPHIQUE
+   ================================= */
+.chart-container {
+    background: white;
+}
+
+.chart-header {
+    background: var(--light-color);
+    padding: 20px 30px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.chart-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--primary-color);
+}
+
+.chart-content {
+    padding: 30px;
+    height: 400px;
+    position: relative;
+}
+
+/* =================================
+   DETTES
+   ================================= */
+.dettes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.dette-card {
+    padding: 25px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.dette-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.dette-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.dette-card.cnps {
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+}
+
+.dette-card.cnps::before {
+    background: var(--success-color);
+}
+
+.dette-card.fiscale {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+}
+
+.dette-card.fiscale::before {
+    background: var(--warning-color);
+}
+
+.dette-card.feicom {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.dette-card.feicom::before {
+    background: var(--info-color);
+}
+
+.dette-card.salariale {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+}
+
+.dette-card.salariale::before {
+    background: var(--danger-color);
+}
+
+.dette-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.dette-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+.dette-amount {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.dette-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* =================================
+   PROBLÈMES ET TABS
+   ================================= */
+.section-tabs {
+    display: flex;
+    background: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+    position: relative;
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    background: white;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-color);
+}
+
+.tab-btn:hover:not(.active) {
+    background: rgba(44, 82, 130, 0.1);
+}
+
+.tab-content {
+    display: none;
+    padding: 30px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.problemes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.probleme-item {
+    padding: 20px;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--info-color);
+    background: var(--light-color);
+    transition: var(--transition);
+}
+
+.probleme-item:hover {
+    background: white;
+    box-shadow: var(--shadow);
+}
+
+.probleme-item.grave {
+    border-left-color: var(--danger-color);
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+}
+
+.probleme-item.resolved {
+    opacity: 0.7;
+    border-left-color: var(--success-color);
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+}
+
+.probleme-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.probleme-type {
+    font-weight: 600;
+    color: var(--primary-color);
+    background: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.probleme-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.probleme-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.probleme-status.resolved {
+    background: var(--success-color);
+    color: white;
+}
+
+.probleme-status.pending {
+    background: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.retard-duree {
+    background: var(--danger-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.probleme-description {
+    color: var(--dark-color);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.probleme-gravite {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.probleme-gravite.grave {
+    color: var(--danger-color);
+}
+
+.probleme-gravite i {
+    font-size: 1rem;
+}
+
+.no-problemes {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.no-problemes i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--success-color);
+    display: block;
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+   ================================= */
+@media (max-width: 768px) {
+    .commune-dashboard {
+        padding: 15px;
+    }
+    
+    .commune-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+    
+    .commune-meta {
+        justify-content: center;
+    }
+    
+    .finances-grid,
+    .dettes-grid,
+    .responsables-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px;
+    }
+    
+    .finance-amount,
+    .dette-amount {
+        font-size: 1.4rem;
+    }
+    
+    .commune-info h2 {
+        font-size: 1.8rem;
+    }
+    
+    .section-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        text-align: left;
+    }
+    
+    .probleme-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .chart-content {
+        padding: 15px;
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .commune-dashboard {
+        padding: 10px;
+    }
+    
+    .commune-header {
+        padding: 20px;
+    }
+    
+    .finances-grid,
+    .dettes-grid,
+    .responsables-grid {
+        padding: 15px;
+    }
+    
+    .finance-card,
+    .dette-card,
+    .responsable-card {
+        padding: 15px;
+    }
+    
+    .tab-content {
+        padding: 20px 15px;
+    }
+    
+    .probleme-item {
+        padding: 15px;
+    }
+}
         /* =============================================
    STYLES GLOBAUX - OBSERVATOIRE DES COLLECTIVITÉS
    ============================================= */
@@ -1079,7 +1768,7 @@ body {
         <nav class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <img src="{{ asset('images/cameroon-flag.png') }}" alt="Cameroun">
+                    <img src="{{ asset('img/image.png') }}" alt="Cameroun">
                     <div class="logo-text">
                         <h3>Observatoire des Collectivités</h3>
                         <p>Territoriales décentralisées</p>
@@ -1097,8 +1786,8 @@ body {
                                 Tableau de Bord
                             </a>
                         </li>
-                        <li class="{{ request()->is('depots-comptes*') ? 'active' : '' }}">
-                            <a href="{{ route('depots-comptes.index') }}">
+                        <li class="{{ request()->is('depot-comptes*') ? 'active' : '' }}">
+                            <a href="{{ route('depot-comptes.index') }}">
                                 <i class="fas fa-file-alt"></i>
                                 Dépots de comptes
                             </a>
@@ -1206,4 +1895,8 @@ body {
     <script src="{{ asset('js/app.js') }}"></script>
     @stack('scripts')
 </body>
-</html>
+</html> 
+
+
+
+

@@ -48,6 +48,11 @@ class Commune extends Model
     {
         return $this->hasMany(Receveur::class);
     }
+
+     public function receveurActif()
+    {
+        return $this->hasOne(Receveur::class)->where('statut', 'Actif');
+    }
     
     
       //Obtenir les dépôts de comptes de cette commune
