@@ -9,6 +9,7 @@ use App\Http\Controllers\dette_cnpsController;
 use App\Http\Controllers\Dette_feicomController;
 use App\Http\Controllers\Dette_fiscaleController;
 use App\Http\Controllers\Dette_salarialeController;
+use App\Http\Controllers\DetteController;
 use App\Http\Controllers\OrdonnateurController;
 use App\Http\Controllers\PrevisionController;
 use App\Http\Controllers\RapportController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\RegionController;
 use App\Http\Controllers\RetardController;
 use App\Http\Controllers\StatistiquesController;
 use App\Http\Controllers\Taux_RealisationController;
+use App\Http\Controllers\TauxRealisationController;
+use App\Models\Defaillance;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -167,6 +170,17 @@ Route::get('/api/departements/{departement}/stats', [DepartementController::clas
 Route::get('/api/departements/{departement}/evolution', [DepartementController::class, 'getEvolution'])
     ->name('api.departements.evolution');
 
+
+    Route::group(['prefix' => 'departements', 'as' => 'departements.'], function () {
+    // Routes existantes
+    Route::get('/', [DepartementController::class, 'index'])->name('index');
+    Route::get('/create', [DepartementController::class, 'create'])->name('create');
+    Route::post('/', [DepartementController::class, 'store'])->name('store');
+    
+    // Nouvelles routes pour l'importation
+    Route::get('/import', [DepartementController::class, 'showImportForm'])->name('import.form');
+    Route::post('/import', [DepartementController::class, 'importAll'])->name('import');
+});
 /*
 |--------------------------------------------------------------------------
 | GESTION DES COMMUNES
@@ -238,16 +252,7 @@ Route::prefix('depot-comptes')->name('depot-comptes.')->group(function () {
     Route::post('/validation/bulk', [Depot_compteController::class, 'bulkValidation'])->name('bulk-validation');
 });
 
-// Alternative avec Route::resource si vous préférez
-/*
-Route::resource('depot-comptes', Depot_compteController::class, [
-    'parameters' => ['depot-comptes' => 'depotCompte']
-]);
 
-// Routes supplémentaires
-Route::get('depot-comptes/rapport/annuel', [Depot_compteController::class, 'rapport'])->name('depot-comptes.rapport');
-Route::post('depot-comptes/validation/bulk', [Depot_compteController::class, 'bulkValidation'])->name('depot-comptes.bulk-validation');
-*/
 
 
 /*
@@ -256,48 +261,99 @@ Route::post('depot-comptes/validation/bulk', [Depot_compteController::class, 'bu
 |--------------------------------------------------------------------------
 */
 
+
+
 // Routes pour les dettes CNPS
 Route::prefix('dettes-cnps')->name('dettes-cnps.')->group(function () {
-    Route::get('/', [dette_cnpsController::class, 'index'])->name('index');
-    Route::get('/create', [dette_cnpsController::class, 'create'])->name('create');
-    Route::post('/', [dette_cnpsController::class, 'store'])->name('store');
-    Route::get('/{dette}', [dette_cnpsController::class, 'show'])->name('show');
-    Route::get('/{dette}/edit', [dette_cnpsController::class, 'edit'])->name('edit');
-    Route::put('/{dette}', [dette_cnpsController::class, 'update'])->name('update');
-    Route::delete('/{dette}', [dette_cnpsController::class, 'destroy'])->name('destroy');
+    Route::get('/', [Dette_CnpsController::class, 'index'])->name('index');
+    Route::get('/create', [Dette_CnpsController::class, 'create'])->name('create');
+    Route::post('/', [Dette_CnpsController::class, 'store'])->name('store');
+    Route::get('/{detteCnps}', [Dette_CnpsController::class, 'show'])->name('show');
+    Route::get('/{detteCnps}/edit', [Dette_CnpsController::class, 'edit'])->name('edit');
+    Route::put('/{detteCnps}', [Dette_CnpsController::class, 'update'])->name('update');
+    Route::delete('/{detteCnps}', [Dette_CnpsController::class, 'destroy'])->name('destroy');
+    Route::get('/export/data', [Dette_CnpsController::class, 'export'])->name('export');
+    Route::get('/rapport/statistiques', [Dette_CnpsController::class, 'rapport'])->name('rapport');
 });
 
-// Routes pour les dettes fiscales
-Route::prefix('dettes-fiscales')->name('dettes-fiscale.')->group(function () {
-    Route::get('/', [Dette_fiscaleController::class, 'index'])->name('index');
-    Route::get('/create', [Dette_fiscaleController::class, 'create'])->name('create');
-    Route::post('/', [Dette_fiscaleController::class, 'store'])->name('store');
-    Route::get('/{dette}', [Dette_fiscaleController::class, 'show'])->name('show');
-    Route::get('/{dette}/edit', [Dette_fiscaleController::class, 'edit'])->name('edit');
-    Route::put('/{dette}', [Dette_fiscaleController::class, 'update'])->name('update');
-    Route::delete('/{dette}', [Dette_fiscaleController::class, 'destroy'])->name('destroy');
+// Routes AJAX pour les filtres dynamiques (optionnel)
+Route::get('/api/departements/{region}', function($regionId) {
+    return \App\Models\Departement::where('region_id', $regionId)->orderBy('nom')->get();
 });
+
+Route::get('/api/communes/{departement}', function($departementId) {
+    return \App\Models\Commune::where('departement_id', $departementId)->orderBy('nom')->get();
+});
+
+
+// Routes pour les dettes fiscales
+Route::prefix('dettes-fiscale')->name('dettes-fiscale.')->group(function () {
+    // Routes CRUD classiques
+    Route::get('/', [Dette_FiscaleController::class, 'index'])->name('index');
+    Route::get('/create', [Dette_FiscaleController::class, 'create'])->name('create');
+    Route::post('/', [Dette_FiscaleController::class, 'store'])->name('store');
+    Route::get('/{detteFiscale}', [Dette_FiscaleController::class, 'show'])->name('show');
+    Route::get('/{detteFiscale}/edit', [Dette_FiscaleController::class, 'edit'])->name('edit');
+    Route::put('/{detteFiscale}', [Dette_FiscaleController::class, 'update'])->name('update');
+    Route::delete('/{detteFiscale}', [Dette_FiscaleController::class, 'destroy'])->name('destroy');
+    
+    // Routes supplémentaires
+    Route::get('/dashboard/statistiques', [Dette_FiscaleController::class, 'dashboard'])->name('dashboard');
+    Route::get('/rapport/comparatif', [Dette_FiscaleController::class, 'rapportComparatif'])->name('rapport-comparatif');
+    Route::get('/export/donnees', [Dette_FiscaleController::class, 'export'])->name('export');
+    Route::get('/export/comparatif', [Dette_FiscaleController::class, 'exportComparatif'])->name('export-comparatif');
+});
+
+
+
 
 // Routes pour les dettes FEICOM
 Route::prefix('dettes-feicom')->name('dettes-feicom.')->group(function () {
-    Route::get('/', [Dette_feicomController::class, 'index'])->name('index');
-    Route::get('/create', [Dette_feicomController::class, 'create'])->name('create');
-    Route::post('/', [Dette_feicomController::class, 'store'])->name('store');
-    Route::get('/{dette}', [Dette_feicomController::class, 'show'])->name('show');
-    Route::get('/{dette}/edit', [Dette_FeicomController::class, 'edit'])->name('edit');
-    Route::put('/{dette}', [Dette_FeicomController::class, 'update'])->name('update');
-    Route::delete('/{dette}', [Dette_FeicomController::class, 'destroy'])->name('destroy');
+    // Routes spécifiques DOIVENT être placées AVANT les routes génériques
+    
+    // Routes pour les rapports (AVANT les routes génériques)
+    Route::get('/rapports/regions', [Dette_FeicomController::class, 'rapportParRegion'])->name('rapport-regions');
+    Route::get('/rapports/departements', [Dette_FeicomController::class, 'rapportParDepartement'])->name('rapport-departements');
+    
+    // Routes pour l'export (AVANT les routes génériques)
+    Route::get('/export/data', [Dette_FeicomController::class, 'export'])->name('export');
+    Route::get('/export', [Dette_FeicomController::class, 'exportForm'])->name('export.form'); // Si vous avez un formulaire d'export
+    
+    // Routes API/AJAX (AVANT les routes génériques)
+    Route::get('/api/commune-dettes', [Dette_FeicomController::class, 'getDettesByCommune'])->name('getDettesByCommune');
+    
+    // Routes CRUD de base (APRÈS les routes spécifiques)
+    Route::get('/', [Dette_FeicomController::class, 'index'])->name('index');
+    Route::get('/create', [Dette_FeicomController::class, 'create'])->name('create');
+    Route::post('/', [Dette_FeicomController::class, 'store'])->name('store');
+    
+    // Routes avec paramètres (TOUJOURS EN DERNIER)
+    Route::get('/{detteFeicom}', [Dette_FeicomController::class, 'show'])->name('show');
+    Route::get('/{detteFeicom}/edit', [Dette_FeicomController::class, 'edit'])->name('edit');
+    Route::put('/{detteFeicom}', [Dette_FeicomController::class, 'update'])->name('update');
+    Route::delete('/{detteFeicom}', [Dette_FeicomController::class, 'destroy'])->name('destroy');
 });
 
-// Routes pour les dettes salariales
-Route::prefix('dettes-salariales')->name('dettes-salariales.')->group(function () {
-    Route::get('/', [Dette_salarialeController::class, 'index'])->name('index');
-    Route::get('/create', [Dette_salarialeController::class, 'create'])->name('create');
-    Route::post('/', [Dette_salarialeController::class, 'store'])->name('store');
-    Route::get('/{dette}', [Dette_salarialeController::class, 'show'])->name('show');
-    Route::get('/{dette}/edit', [Dette_salarialeController::class, 'edit'])->name('edit');
-    Route::put('/{dette}', [Dette_salarialeController::class, 'update'])->name('update');
-    Route::delete('/{dette}', [Dette_salarialeController::class, 'destroy'])->name('destroy');
+
+Route::prefix('dettes-salariales')->name('dettes-salariale.')->group(function () {
+    // Routes CRUD principales
+    Route::get('/', [Dette_SalarialeController::class, 'index'])->name('index');
+    Route::get('/create', [Dette_SalarialeController::class, 'create'])->name('create');
+    Route::post('/', [Dette_SalarialeController::class, 'store'])->name('store');
+    Route::get('/{detteSalariale}', [Dette_SalarialeController::class, 'show'])->name('show');
+    Route::get('/{detteSalariale}/edit', [Dette_SalarialeController::class, 'edit'])->name('edit');
+    Route::put('/{detteSalariale}', [Dette_SalarialeController::class, 'update'])->name('update');
+    Route::delete('/{detteSalariale}', [Dette_SalarialeController::class, 'destroy'])->name('destroy');
+    
+    // Routes supplémentaires
+    Route::get('/dashboard/overview', [Dette_SalarialeController::class, 'dashboard'])->name('dashboard');
+    Route::get('/export/data', [Dette_SalarialeController::class, 'export'])->name('export');
+    Route::get('/api/chart-data', [Dette_SalarialeController::class, 'chartData'])->name('chart-data');
+});
+
+// Routes API pour AJAX
+Route::prefix('api/dettes-salariales')->name('api.dettes-salariale.')->group(function () {
+    Route::get('/chart-data', [Dette_SalarialeController::class, 'chartData'])->name('chart-data');
 });
 
 /*
@@ -306,16 +362,6 @@ Route::prefix('dettes-salariales')->name('dettes-salariales.')->group(function (
 |--------------------------------------------------------------------------
 */
 
-// Routes pour les receveurs
-// Route::prefix('receveurs')->name('receveurs.')->group(function () {
-//     Route::get('/', [ReceveurController::class, 'index'])->name('index');
-//     Route::get('/create', [ReceveurController::class, 'create'])->name('create');
-//     Route::post('/', [ReceveurController::class, 'store'])->name('store');
-//     Route::get('/{receveur}', [ReceveurController::class, 'show'])->name('show');
-//     Route::get('/{receveur}/edit', [ReceveurController::class, 'edit'])->name('edit');
-//     Route::put('/{receveur}', [ReceveurController::class, 'update'])->name('update');
-//     Route::delete('/{receveur}', [ReceveurController::class, 'destroy'])->name('destroy');
-// });
 
 // Routes pour les receveurs
 Route::prefix('receveurs')->name('receveurs.')->group(function () {
@@ -332,8 +378,11 @@ Route::prefix('receveurs')->name('receveurs.')->group(function () {
     Route::patch('/{receveur}/commune', [ReceveurController::class, 'assignerCommune'])->name('assigner-commune');
 });
 
-// Routes pour les ordonnateurs
+
+
+
 Route::prefix('ordonnateurs')->name('ordonnateurs.')->group(function () {
+    // Routes CRUD standard
     Route::get('/', [OrdonnateurController::class, 'index'])->name('index');
     Route::get('/create', [OrdonnateurController::class, 'create'])->name('create');
     Route::post('/', [OrdonnateurController::class, 'store'])->name('store');
@@ -341,8 +390,142 @@ Route::prefix('ordonnateurs')->name('ordonnateurs.')->group(function () {
     Route::get('/{ordonnateur}/edit', [OrdonnateurController::class, 'edit'])->name('edit');
     Route::put('/{ordonnateur}', [OrdonnateurController::class, 'update'])->name('update');
     Route::delete('/{ordonnateur}', [OrdonnateurController::class, 'destroy'])->name('destroy');
+    Route::resource('ordonnateurs', OrdonnateurController::class);
+    // Routes spécifiques pour l'assignation
+    Route::put('/{ordonnateur}/assign-commune', [OrdonnateurController::class, 'assignToCommune'])->name('assign-commune');
+    Route::put('/{ordonnateur}/liberer-commune', [OrdonnateurController::class, 'libererDeCommune'])->name('liberer-commune');
 });
 
+// Routes API pour AJAX
+Route::prefix('api/ordonnateurs')->name('api.ordonnateurs.')->group(function () {
+    Route::get('/commune/{commune}', [OrdonnateurController::class, 'getByCommune'])->name('by-commune');
+    Route::get('/libres', [OrdonnateurController::class, 'getLibres'])->name('libres');
+});
+
+
+
+
+
+
+
+
+Route::prefix('previsions')->name('previsions.')->group(function () {
+    // Routes CRUD de base
+    Route::get('/', [PrevisionController::class, 'index'])->name('index');
+    Route::get('/create', [PrevisionController::class, 'create'])->name('create');
+    Route::post('/', [PrevisionController::class, 'store'])->name('store');
+    Route::get('/{prevision}', [PrevisionController::class, 'show'])->name('show');
+    Route::get('/{prevision}/edit', [PrevisionController::class, 'edit'])->name('edit');
+    Route::put('/{prevision}', [PrevisionController::class, 'update'])->name('update');
+    Route::delete('/{prevision}', [PrevisionController::class, 'destroy'])->name('destroy');
+    
+    // Routes spéciales
+    Route::post('/{prevision}/duplicate', [PrevisionController::class, 'duplicate'])->name('duplicate');
+    Route::get('/analyses/tendances', [PrevisionController::class, 'analysesTendances'])->name('analyses.tendances');
+
+    // Routes pour l'export
+    Route::get('/export/excel', [PrevisionController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export/pdf', [PrevisionController::class, 'exportPdf'])->name('export.pdf');
+    
+    // Routes pour l'import
+    Route::get('/import/form', [PrevisionController::class, 'importForm'])->name('import.form');
+    Route::post('/import/process', [PrevisionController::class, 'importProcess'])->name('import.process');
+});
+
+// ================== ROUTES POUR LES RÉALISATIONS ==================
+
+// Routes CRUD complètes pour les réalisations
+Route::resource('realisations', RealisationController::class);
+
+// Routes spécifiques pour les réalisations
+Route::group(['prefix' => 'realisations'], function () {
+    // Export des réalisations
+    Route::get('/export', [RealisationController::class, 'export'])
+        ->name('realisations.export');
+        Route::get('/statistiques', [RealisationController::class, 'statistiques'])
+        ->name('realisations.statistiques');
+    
+    // API pour récupérer les réalisations par commune
+    Route::get('/by-commune/{commune}', [RealisationController::class, 'getByCommune'])
+        ->name('realisations.by-commune');
+    
+    // API pour récupérer les réalisations par département
+    Route::get('/by-departement/{departement}', [RealisationController::class, 'getByDepartement'])
+        ->name('realisations.by-departement');
+    
+    // API pour récupérer les réalisations par prévision
+    Route::get('/by-prevision/{prevision}', [RealisationController::class, 'getByPrevision'])
+        ->name('realisations.by-prevision');
+    
+    // Statistiques des réalisations par année
+    Route::get('/stats/{annee}', [RealisationController::class, 'getStats'])
+        ->name('realisations.stats');
+    
+    // Comparaison département
+    Route::get('/comparaison/{departement}/{annee}', [RealisationController::class, 'comparaisonDepartement'])
+        ->name('realisations.comparaison-departement');
+        Route::get('/prevision/{prevision}', [RealisationController::class, 'indexByPrevision'])->name('by-prevision');
+    Route::get('/prevision/{prevision}/create', [RealisationController::class, 'createForPrevision'])->name('create-for-prevision');
+    // Dans routes/web.php, ajoutez cette route
+
+ 
+
+});
+Route::get('/api/previsions-by-commune', [RealisationController::class, 'getPrevisionsByCommune'])
+    ->name('previsions.by-commune');Route::get('/realisations/previsions-by-commune', [RealisationController::class, 'getPrevisionsByCommune'])
+    ->name('realisations.previsions-by-commune');
+   Route::get('/realisations/commune-stats', [RealisationController::class, 'getCommuneStats'])
+    ->name('realisations.commune-stats');
+
+
+// ================== ROUTES COMBINÉES PRÉVISIONS/RÉALISATIONS ==================
+
+Route::group(['prefix' => 'gestion-financiere'], function () {
+    // Dashboard des prévisions et réalisations
+    Route::get('/dashboard', [PrevisionController::class, 'dashboard'])
+        ->name('gestion-financiere.dashboard');
+    
+    // Analyse comparative prévisions vs réalisations
+    Route::get('/analyse/{annee?}', [PrevisionController::class, 'analyseComparative'])
+        ->name('gestion-financiere.analyse');
+    
+    // Rapport global par département
+    Route::get('/rapport-departement/{departement}/{annee?}', [PrevisionController::class, 'rapportDepartement'])
+        ->name('gestion-financiere.rapport-departement');
+    
+    // Rapport global par commune
+    Route::get('/rapport-commune/{commune}/{annee?}', [RealisationController::class, 'rapportCommune'])
+        ->name('gestion-financiere.rapport-commune');
+    
+    // Export consolidé
+    Route::get('/export-consolide', [PrevisionController::class, 'exportConsolide'])
+        ->name('gestion-financiere.export-consolide');
+});
+
+// ================== ROUTES API POUR LES DONNÉES DYNAMIQUES ==================
+
+// Route::group(['prefix' => 'api', 'middleware' => ['api'
+
+// routes/web.php
+// Route::get('/taux-realisations', [Taux_RealisationController::class, 'index'])->name('taux-realisations.index');
+// Route::get('/taux-realisations/dashboard', [Taux_RealisationController::class, 'dashboard'])->name('taux-realisations.dashboard');
+// Route::get('/taux-realisations/{prevision}', [Taux_RealisationController::class, 'show'])->name('taux-realisations.show');
+// Route::get('/taux-realisations/export', [Taux_RealisationController::class, 'export'])->name('taux-realisations.export');
+
+Route::prefix('taux-realisations')->name('taux-realisations.')->group(function () {
+    Route::get('/', [TauxRealisationController::class, 'index'])->name('index');
+    Route::get('/dashboard', [TauxRealisationController::class, 'dashboard'])->name('dashboard');
+    Route::get('/export', [TauxRealisationController::class, 'export'])->name('export');
+    Route::get('/{prevision}', [TauxRealisationController::class, 'show'])->name('show');
+});
+
+// Routes pour intégration dans les autres pages
+Route::get('/communes/{commune}/taux-realisation', [CommunesController::class, 'tauxRealisation'])->name('communes.taux-realisation');
+Route::get('/regions/{region}/taux-realisation', [RegionController::class, 'tauxRealisation'])->name('regions.taux-realisation');
+Route::get('/departements/{departement}/taux-realisation', [DepartementController::class, 'tauxRealisation'])->name('departements.taux-realisation');
+
+// route::resources('retards',RetardController::class);
+// route::resources('defaillances',DefaillanceController::class);
 /*
 |--------------------------------------------------------------------------
 | GESTION DES RAPPORTS ET EXPORTS
@@ -460,137 +643,164 @@ Route::prefix('api')->name('api.')->group(function () {
     Route::post('/validate/commune', [CommunesController::class, 'validateAjax'])
         ->name('validate.commune');
     
-//     // Notifications
-//     Route::get('/notifications', [NotificationController::class, 'getNotifications'])
-//         ->name('notifications');
+    // // Notifications
+    // Route::get('/notifications', [NotificationController::class, 'getNotifications'])
+    //     ->name('notifications');
     
-//     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])
-//         ->name('notifications.read');
+    // Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])
+    //     ->name('notifications.read');
  });
 
-// /*
-// |--------------------------------------------------------------------------
-// | ROUTES DE RECHERCHE ET FILTRAGE
-// |--------------------------------------------------------------------------
-// */
 
-// // Recherche globale
-// Route::get('/search', [SearchController::class, 'index'])
-//     ->name('search.index');
+ // Routes pour les Communes
+Route::prefix('communes')->name('communes.')->group(function () {
+    // Route::get('/', [CommuneController::class, 'index'])->name('index');
+    // Route::get('/create', [CommuneController::class, 'create'])->name('create');
+    // Route::post('/', [CommuneController::class, 'store'])->name('store');
+    // Route::get('/{commune}', [CommuneController::class, 'show'])->name('show');
+    // Route::get('/{commune}/edit', [CommuneController::class, 'edit'])->name('edit');
+    // Route::put('/{commune}', [CommuneController::class, 'update'])->name('update');
+    // Route::delete('/{commune}', [CommuneController::class, 'destroy'])->name('destroy');
+    
+    // Routes AJAX
+    Route::get('/ajax/by-departement/{departement}', [CommunesController::class, 'byDepartement'])->name('by-departement');
+    Route::get('/ajax/by-region/{region}', [CommunesController::class, 'byRegion'])->name('by-region');
+});
 
-// Route::post('/search', [SearchController::class, 'search'])
-//     ->name('search.results');
+// Routes pour les Départements
+Route::prefix('departements')->name('departements.')->group(function () {
+    // Route::get('/', [DepartementController::class, 'index'])->name('index');
+    // Route::get('/create', [DepartementController::class, 'create'])->name('create');
+    // Route::post('/', [DepartementController::class, 'store'])->name('store');
+    // Route::get('/{departement}', [DepartementController::class, 'show'])->name('show');
+    // Route::get('/{departement}/edit', [DepartementController::class, 'edit'])->name('edit');
+    // Route::put('/{departement}', [DepartementController::class, 'update'])->name('update');
+    // Route::delete('/{departement}', [DepartementController::class, 'destroy'])->name('destroy');
+    
+    // Routes AJAX
+    Route::get('/ajax/by-region/{region}', [DepartementController::class, 'byRegion'])->name('by-region');
+});
 
-// // Filtrage avancé
-// Route::post('/filter/communes', [FilterController::class, 'communes'])
-//     ->name('filter.communes');
-
-// Route::post('/filter/regions', [FilterController::class, 'regions'])
-//     ->name('filter.regions');
-
-// Route::post('/filter/departements', [FilterController::class, 'departements'])
-//     ->name('filter.departements');
-
-// /*
-// |--------------------------------------------------------------------------
-// | ROUTES D'ADMINISTRATION
-// |--------------------------------------------------------------------------
-// */
-
-// // Groupe de routes pour l'administration (avec middleware admin)
-// Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
-//     // Dashboard admin
-//     Route::get('/dashboard', [AdminController::class, 'dashboard'])
-//         ->name('dashboard');
-    
-//     // // Gestion des utilisateurs
-//     // Route::resource('users', UserController::class);
-    
-//     // Gestion des permissions
-//     Route::resource('permissions', PermissionController::class);
-    
-//     // Paramètres système
-//     Route::get('/settings', [AdminController::class, 'settings'])
-//         ->name('settings');
-    
-//     Route::post('/settings', [AdminController::class, 'updateSettings'])
-//         ->name('settings.update');
-    
-//     // Logs et audit
-//     Route::get('/logs', [AdminController::class, 'logs'])
-//         ->name('logs');
-    
-//     // Sauvegarde et restauration
-//     Route::post('/backup', [AdminController::class, 'backup'])
-//         ->name('backup');
-    
-//     Route::post('/restore', [AdminController::class, 'restore'])
-//         ->name('restore');
+// // Routes pour les Régions
+// Route::prefix('regions')->name('regions.')->group(function () {
+//     Route::get('/', [RegionController::class, 'index'])->name('index');
+//     Route::get('/create', [RegionController::class, 'create'])->name('create');
+//     Route::post('/', [RegionController::class, 'store'])->name('store');
+//     Route::get('/{region}', [RegionController::class, 'show'])->name('show');
+//     Route::get('/{region}/edit', [RegionController::class, 'edit'])->name('edit');
+//     Route::put('/{region}', [RegionController::class, 'update'])->name('update');
+//     Route::delete('/{region}', [RegionController::class, 'destroy'])->name('destroy');
 // });
 
-// /*
-// |--------------------------------------------------------------------------
-// | ROUTES DE CONFIGURATION ET MAINTENANCE
-// |--------------------------------------------------------------------------
-// */
+// Routes pour les Taux de Réalisation
+Route::prefix('taux-realisation')->name('taux-realisation.')->group(function () {
+    Route::get('/', [TauxRealisationController::class, 'index'])->name('index');
+    Route::get('/rapports', [TauxRealisationController::class, 'rapports'])->name('rapports');
+    Route::get('/comparaisons', [TauxRealisationController::class, 'comparaisons'])->name('comparaisons');
+    Route::post('/recalculer', [TauxRealisationController::class, 'recalculer'])->name('recalculer');
+});
 
-// // Mise à jour des taux de réalisation (tâche cron)
-// Route::get('/cron/update-taux-realisation', [CronController::class, 'updateTauxRealisation'])
-//     ->name('cron.taux.realisation');
+// Routes pour les rapports et statistiques
+Route::prefix('rapports')->name('rapports.')->group(function () {
+    Route::get('/synthese', [DashboardController::class, 'syntheseAnnuelle'])->name('synthese');
+    Route::get('/comparaisons', [DashboardController::class, 'comparaisons'])->name('comparaisons');
+    Route::get('/evolution', [DashboardController::class, 'evolution'])->name('evolution');
+});
 
-// // Calcul automatique des défaillances
-// Route::get('/cron/calculate-defaillances', [CronController::class, 'calculateDefaillances'])
-//     ->name('cron.defaillances');
+// Routes API pour les données AJAX
+Route::prefix('api')->name('api.')->group(function () {
+    Route::get('/communes/search', [CommunesController::class, 'search'])->name('communes.search');
+    Route::get('/statistiques/{annee}', [DashboardController::class, 'statistiquesAnnee'])->name('statistiques.annee');
+    Route::get('/graphique-evolution/{commune}', [PrevisionController::class, 'graphiqueEvolution'])->name('graphique.evolution');
+});
 
-// // Nettoyage des données temporaires
-// Route::get('/cron/cleanup', [CronController::class, 'cleanup'])
-//     ->name('cron.cleanup');
 
-// /*
-// |--------------------------------------------------------------------------
-// | ROUTES DE TÉLÉCHARGEMENT DE DOCUMENTS
-// |--------------------------------------------------------------------------
-// */
 
-// // Téléchargement de rapports PDF
-// Route::get('/download/rapport/{type}/{id}/{annee}', [DownloadController::class, 'rapport'])
-//     ->name('download.rapport')
-//     ->where(['annee' => '[0-9]{4}', 'type' => 'region|departement|commune']);
 
-// // Téléchargement de fichiers Excel
-// Route::get('/download/excel/{type}/{annee}', [DownloadController::class, 'excel'])
-//     ->name('download.excel')
-//     ->where(['annee' => '[0-9]{4}']);
 
-// // Téléchargement de modèles
-// Route::get('/download/template/{type}', [DownloadController::class, 'template'])
-//     ->name('download.template');
 
-// /*
-// |--------------------------------------------------------------------------
-// | ROUTES POUR GESTION DES ERREURS ET HELP
-// |--------------------------------------------------------------------------
-// */
 
-// // Page d'aide
-// Route::get('/help', function () {
-//     return view('help.index');
-// })->name('help');
 
-// // FAQ
-// Route::get('/faq', function () {
-//     return view('help.faq');
-// })->name('faq');
 
-// // Contact support
-// Route::get('/contact', function () {
-//     return view('contact.index');
-// })->name('contact');
 
-// Route::post('/contact', [ContactController::class, 'send'])
-//     ->name('contact.send');
 
-// // Route fallback pour les erreurs 404
-// Route::fallback(function () {
-//     return response()->view('errors.404', [], 404);
+
+
+
+
+
+
+
+
+// Route::middleware(['auth'])->group(function () {
+    
+    // Dashboard principal
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    
+    // API pour changement de période (AJAX)
+    Route::get('/dashboard/periode/{periode}', [DashboardController::class, 'getPeriodeData'])->name('dashboard.periode');
+    
+    // Export des données du dashboard
+    Route::get('/dashboard/export/{format}', [DashboardController::class, 'export'])->name('dashboard.export');
+    
+    // Statistiques par région (pour les modales/popups)
+    Route::get('/dashboard/region/{id}/stats', [DashboardController::class, 'getRegionStats'])->name('dashboard.region.stats');
+    
+    // Actualisation des données temps réel
+    Route::get('/dashboard/refresh', [DashboardController::class, 'refreshData'])->name('dashboard.refresh');
+
+    // Routes pour les autres sections mentionnées dans la sidebar
+    
+    // INDICATEURS
+    // Route::get('/indicateurs', [IndicateursController::class, 'index'])->name('indicateurs.index');
+    
+    // TERRITOIRE
+    Route::resource('regions', RegionController::class);
+    Route::resource('departements', DepartementController::class);
+    Route::resource('communes', CommunesController::class);
+    
+    // RESSOURCES
+    // Route::resource('ressources-transferees', RessourcesTransfereesController::class);
+    // Route::resource('ressources-propres', RessourcesPropresController::class);
+    // Route::resource('donations-exterieures', DonationsExterieuresController::class);
+    // Route::resource('autres-ressources', AutresRessourcesController::class);
+    
+    // // EMPLOIS
+    // Route::resource('infrastructures', InfrastructuresController::class);
+    // Route::resource('equipements', EquipementsController::class);
+    // Route::resource('services-sociaux', ServicesSociauxController::class);
+    // Route::resource('fonctionnement', FonctionnementController::class);
+    
+    // // SUIVI BUDGÉTAIRE
+    // Route::resource('execution-budgetaire', ExecutionBudgetaireController::class);
+    
+    // // GOUVERNANCE
+    // Route::resource('ordonnateurs', OrdonnateurstController::class);
+    // Route::resource('receveurs', ReceveursController::class);
+    // Route::resource('depot-comptes', DepotComptesController::class);
+    
+    // // ENDETTEMENT
+    // Route::resource('dettes-cnps', DettesCnpsController::class);
+    // Route::resource('dettes-salariales', DettesSalarialesController::class);
+    // Route::resource('dettes-fiscales', DettesFiscaleController::class);
+    // Route::resource('dettes-feicom', DettesFeicomController::class);
+    
+    // // DÉFAILLANCES
+    // Route::resource('retards-depot', RetardsDepotController::class);
+    // Route::resource('defaillances-gestion', DefaillancesGestionController::class);
+    // Route::resource('alertes', AlertesController::class);
+    
+    // // RAPPORTS
+    // Route::resource('rapports-performance', RapportsPerformanceController::class);
+    // Route::resource('rapports-gouvernance', RapportsGouvernanceController::class);
+    // Route::resource('synthese-annuelle', SyntheseAnnuelleController::class);
 // });
+
+// Routes API pour les données dynamiques
+Route::prefix('api')->middleware(['auth'])->group(function () {
+    
+    // API Dashboard
+    Route::get('/dashboard/stats', [DashboardController::class, 'getStats']);
+    Route::get('/dashboard/charts/{type}', [DashboardController::class, 'getChartData']);
+    Route::get('/dashboard/alertes', [DashboardController::class, 'getAlertes']);
+ });

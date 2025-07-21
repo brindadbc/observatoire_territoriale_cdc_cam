@@ -318,101 +318,53 @@ class Depot_compteController extends Controller
         }
     }
 
-//     /**
-//      * Rapport des dépôts par période
-//      */
-//     public function rapport(Request $request)
-//     {
-
-//         $regions = Region::orderBy('nom')->get();
-// $departements = Departement::orderBy('nom')->get();
-//         $annee = $request->get('annee', date('Y'));
-//         $departementId = $request->get('departement_id');
-//         $regionId = $request->get('region_id');
-        
-//         $query = Depot_compte::with(['commune.departement.region', 'receveur'])
-//                             ->where('annee_exercice', $annee);
-        
-//         if ($departementId) {
-//             $query->whereHas('commune', function($q) use ($departementId) {
-//                 $q->where('departement_id', $departementId);
-//             });
-//         }
-        
-//         if ($regionId) {
-//             $query->whereHas('commune.departement', function($q) use ($regionId) {
-//                 $q->where('region_id', $regionId);
-//             });
-//         }
-        
-//         $depots = $query->orderBy('date_depot', 'desc')->get();
-        
-//         // Statistiques du rapport
-//         $statistiques = [
-//             'total_depots' => $depots->count(),
-//             'depots_valides' => $depots->where('validation', true)->count(),
-//             'depots_invalides' => $depots->where('validation', false)->count(),
-//             'taux_validation' => $depots->count() > 0 ? 
-//                 round(($depots->where('validation', true)->count() / $depots->count()) * 100, 2) : 0,
-//             'depots_par_mois' => $this->getDepotsParMois($depots),
-//             'communes_sans_depot' => $this->getCommunesSansDepot($annee, $departementId, $regionId)
-//         ];
-        
-
-
-// return view('depot-comptes.rapport', compact(
-//     'depots', 'statistiques', 'annee', 'regions', 'departements'
-// ));
 
 /**
- * Rapport des dépôts par période
- */
-public function rapport(Request $request)
-{
-    // Récupérer toutes les régions et départements pour les filtres
-    $regions = Region::orderBy('nom')->get();
-    $departements = Departement::orderBy('nom')->get();
-    
-    $annee = $request->get('annee', date('Y'));
-    $departementId = $request->get('departement_id');
-    $regionId = $request->get('region_id');
-    
-    $query = Depot_compte::with(['commune.departement.region', 'receveur'])
-                        ->where('annee_exercice', $annee);
-    
-    if ($departementId) {
-        $query->whereHas('commune', function($q) use ($departementId) {
-            $q->where('departement_id', $departementId);
-        });
-    }
-    
-    if ($regionId) {
-        $query->whereHas('commune.departement', function($q) use ($regionId) {
-            $q->where('region_id', $regionId);
-        });
-    }
-    
-    $depots = $query->orderBy('date_depot', 'desc')->get();
-    
-    // Statistiques du rapport
-    $statistiques = [
-        'total_depots' => $depots->count(),
-        'depots_valides' => $depots->where('validation', true)->count(),
-        'depots_invalides' => $depots->where('validation', false)->count(),
-        'taux_validation' => $depots->count() > 0 ? 
-            round(($depots->where('validation', true)->count() / $depots->count()) * 100, 2) : 0,
-        'depots_par_mois' => $this->getDepotsParMois($depots),
-        'communes_sans_depot' => $this->getCommunesSansDepot($annee, $departementId, $regionId)
-    ];
-    
-    return view('depot-comptes.rapport', compact(
-        'depots', 'statistiques', 'annee', 'regions', 'departements', 
-        'regionId', 'departementId'
-    ));
-}
+     * Rapport des dépôts par période
+     */
+    public function rapport(Request $request)
+    {
+        // Récupérer toutes les régions et départements pour les filtres
+        $regions = Region::orderBy('nom')->get();
+        $departements = Departement::orderBy('nom')->get();
         
-       
-    
+        $annee = $request->get('annee', date('Y'));
+        $departementId = $request->get('departement_id');
+        $regionId = $request->get('region_id');
+        
+        $query = Depot_compte::with(['commune.departement.region', 'receveur'])
+                            ->where('annee_exercice', $annee);
+        
+        if ($departementId) {
+            $query->whereHas('commune', function($q) use ($departementId) {
+                $q->where('departement_id', $departementId);
+            });
+        }
+        
+        if ($regionId) {
+            $query->whereHas('commune.departement', function($q) use ($regionId) {
+                $q->where('region_id', $regionId);
+            });
+        }
+        
+        $depots = $query->orderBy('date_depot', 'desc')->get();
+        
+        // Statistiques du rapport
+        $statistiques = [
+            'total_depots' => $depots->count(),
+            'depots_valides' => $depots->where('validation', true)->count(),
+            'depots_invalides' => $depots->where('validation', false)->count(),
+            'taux_validation' => $depots->count() > 0 ? 
+                round(($depots->where('validation', true)->count() / $depots->count()) * 100, 2) : 0,
+            'depots_par_annee' => $this->getDepotsParAnnee($departementId, $regionId),
+            'communes_sans_depot' => $this->getCommunesSansDepot($annee, $departementId, $regionId)
+        ];
+        
+        return view('depot-comptes.rapport', compact(
+            'depots', 'statistiques', 'annee', 'regions', 'departements', 
+            'regionId', 'departementId'
+        ));
+    }
 
     // ================== MÉTHODES PRIVÉES ==================
 
@@ -466,15 +418,36 @@ public function rapport(Request $request)
     }
 
     /**
-     * Obtenir les dépôts par mois
+     * Obtenir les dépôts par année (remplace getDepotsParMois)
      */
-    private function getDepotsParMois($depots)
+    private function getDepotsParAnnee($departementId = null, $regionId = null)
     {
-        return $depots->groupBy(function($depot) {
-            return Carbon::parse($depot->date_depot)->format('m');
-        })->map(function($group) {
-            return $group->count();
-        });
+        $query = Depot_compte::select('annee_exercice', DB::raw('count(*) as nombre_depots'))
+                            ->groupBy('annee_exercice')
+                            ->orderBy('annee_exercice');
+        
+        // Appliquer les filtres si nécessaire
+        if ($departementId) {
+            $query->whereHas('commune', function($q) use ($departementId) {
+                $q->where('departement_id', $departementId);
+            });
+        }
+        
+        if ($regionId) {
+            $query->whereHas('commune.departement', function($q) use ($regionId) {
+                $q->where('region_id', $regionId);
+            });
+        }
+        
+        $resultats = $query->get();
+        
+        // Convertir en tableau associatif année => nombre_depots
+        $depotsParAnnee = [];
+        foreach ($resultats as $resultat) {
+            $depotsParAnnee[$resultat->annee_exercice] = $resultat->nombre_depots;
+        }
+        
+        return $depotsParAnnee;
     }
 
     /**
@@ -502,4 +475,6 @@ public function rapport(Request $request)
         
         return $query->get();
     }
+
+    
 }

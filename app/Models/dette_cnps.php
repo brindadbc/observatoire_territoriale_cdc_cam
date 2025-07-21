@@ -37,6 +37,22 @@ class dette_cnps extends Model
      
     public function getEnRetardAttribute()
     {
-        return !$this->date_evaluation < now();
+        return $this->date_evaluation < now();
+    }
+
+     /**
+     * Accesseur pour formater le montant
+     */
+    public function getFormattedMontantAttribute()
+    {
+        return number_format($this->montant, 0, ',', ' ') . ' FCFA';
+    }
+
+    /**
+     * Mutateur pour s'assurer que le montant est positif
+     */
+    public function setMontantAttribute($value)
+    {
+        $this->attributes['montant'] = max(0, (float) $value);
     }
 }

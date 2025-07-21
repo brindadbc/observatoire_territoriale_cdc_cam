@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dette_cnps', function (Blueprint $table) {
             $table->id();
-              $table->decimal('montant');
+            $table->decimal('montant', 25, 2);
             $table->date('date_evaluation');
             $table->foreignId('commune_id')->constrained()->onDelete('cascade');
             $table->timestamps();
@@ -26,5 +26,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('dette_cnps');
+        
     }
 };

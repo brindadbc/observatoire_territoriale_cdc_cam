@@ -437,6 +437,115 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+// Gestion des filtres avec rechargement automatique
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSelects = document.querySelectorAll('.filter-select');
+    
+    filterSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const filterType = this.name;
+            const filterValue = this.value;
+            
+            // Construire l'URL avec les paramètres
+            const url = new URL(window.location.href);
+            
+            // Mettre à jour le paramètre selon le type de filtre
+            if (filterType === 'annee') {
+                url.searchParams.set('annee', filterValue);
+            } else if (filterType === 'departement') {
+                url.searchParams.set('departement', filterValue);
+            } else if (filterType === 'statut') {
+                url.searchParams.set('statut', filterValue);
+            }
+            
+            // Recharger la page avec les nouveaux paramètres
+            window.location.href = url.toString();
+        });
+    });
+    
+    // Fonction pour afficher un loader pendant le rechargement
+    function showLoader() {
+        const loader = document.createElement('div');
+        loader.id = 'page-loader';
+        loader.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255,255,255,0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            ">
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 1rem;
+                ">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        border: 4px solid #e2e8f0;
+                        border-top: 4px solid #667eea;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                    "></div>
+                    <span style="color: #4a5568; font-weight: 600;">Chargement des données...</span>
+                </div>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+        document.body.appendChild(loader);
+    }
+    
+    // Ajouter le loader lors du changement de filtre
+    filterSelects.forEach(select => {
+        select.addEventListener('change', showLoader);
+    });
+    
+    // Gestion des actions sur les défaillances
+    const actionButtons = document.querySelectorAll('.btn-action');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const action = this.classList.contains('view') ? 'view' : 'resolve';
+            const row = this.closest('tr');
+            const commune = row.querySelector('td:first-child').textContent.trim();
+            
+            if (action === 'view') {
+                // Afficher les détails de la défaillance
+                alert(`Affichage des détails de la défaillance pour ${commune}`);
+            } else {
+                // Marquer comme résolu
+                if (confirm(`Marquer cette défaillance comme résolue pour ${commune} ?`)) {
+                    // Ici vous pouvez ajouter la logique AJAX pour marquer comme résolu
+                    alert('Défaillance marquée comme résolue');
+                }
+            }
+        });
+    });
+    
+    // Animation des barres de progression
+    const tauxBars = document.querySelectorAll('.taux-progress');
+    tauxBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+});
 </script> 
 
 {{-- <style>

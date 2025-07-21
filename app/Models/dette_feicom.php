@@ -37,6 +37,28 @@ class dette_feicom extends Model
      
     public function getEnRetardAttribute()
     {
-        return !$this->date_evaluation < now();
+        return $this->date_evaluation < now();
     }
+
+    // Dans Dette_FeicomController.php
+public function rapportParRegion()
+{
+    // Votre logique ici
+    $regions = collect(); // Exemple
+    $annee = request('annee', date('Y'));
+    
+    return view('dettes-feicom.rapport-regions', compact('regions', 'annee'));
+}
+
+public function export()
+{
+    $format = request('format');
+    // Votre logique d'export ici
+    
+    if (!$format) {
+        return view('dettes-feicom.export'); // Formulaire d'export
+    }
+    
+    // Logique d'export selon le format
+}
 }

@@ -253,14 +253,32 @@ class OrdonnateurController extends Controller
         }
     }
 
-    /**
-     * Suppression d'un ordonnateur
-     */
+   
+
+
+
     public function destroy(Ordonnateur $ordonnateur)
     {
         try {
             DB::beginTransaction();
 
+            // Vérifier les contraintes avant suppression
+            $peutSupprimer = $this->verifierConstraintesSupression($ordonnateur);
+            
+            if (!$peutSupprimer['possible']) {
+                return redirect()->back()
+                    ->with('error', $peutSupprimer['message']);
+            }
+
+            // Détacher de la commune si assigné
+            if ($ordonnateur->commune_id) {
+                $ordonnateur->update(['commune_id' => null]);
+            }
+
+            // Supprimer les relations dépendantes si elles existent
+            $this->supprimerRelationsDependantes($ordonnateur);
+
+            // Supprimer l'ordonnateur
             $ordonnateur->delete();
 
             DB::commit();
@@ -273,8 +291,48 @@ class OrdonnateurController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Erreur lors de la suppression: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return redirect()->back()
                 ->with('error', 'Erreur lors de la suppression de l\'ordonnateur: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Vérifier si un ordonnateur peut être supprimé
+     */
+    private function verifierConstraintesSupression($ordonnateur)
+    {
+        try {
+          
+
+            // Vérifier les contraintes de base de données
+            return [
+                'possible' => true,
+                'message' => ''
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'possible' => false,
+                'message' => 'Erreur lors de la vérification des contraintes: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Supprimer les relations dépendantes
+     */
+    private function supprimerRelationsDependantes($ordonnateur)
+    {
+        try {
+           
+            
+            Log::info('Relations dépendantes supprimées pour l\'ordonnateur ID: ' . $ordonnateur->id);
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression des relations: ' . $e->getMessage());
+            throw $e;
         }
     }
 

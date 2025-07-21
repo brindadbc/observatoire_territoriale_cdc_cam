@@ -428,6 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Fonction pour confirmer la suppression
 function confirmDelete(depotId, depotInfo) {
     document.getElementById('depot-info').textContent = depotInfo;
     document.getElementById('delete-form').action = `/depot-comptes/${depotId}`;

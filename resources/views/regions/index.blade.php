@@ -155,12 +155,12 @@
                                                    title="Modifier">
                                                     <i class="bx bx-edit"></i>Modifier
                                                 </a>
-                                                <button type="button" 
+                                                {{-- <button type="button" 
                                                         class="btn btn-sm btn-outline-danger" 
                                                         onclick="confirmDelete({{ $region['id'] }}, '{{ $region['nom'] }}')"
                                                         title="Supprimer">
                                                     <i class="bx bx-trash"></i>Supprimer
-                                                </button>
+                                                </button> --}}
                                             </div>
                                         </td>
                                     </tr>
@@ -272,7 +272,7 @@
     @endif
 </div>
 
-{{-- Modal de confirmation de suppression --}}
+{{-- Modal de confirmation de suppression
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -297,7 +297,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 @endsection
 
 @push('scripts')
@@ -314,13 +314,13 @@
         });
     });
 
-    // Fonction de confirmation de suppression
-    function confirmDelete(regionId, regionName) {
-        document.getElementById('regionName').textContent = regionName;
-        document.getElementById('deleteForm').action = `/regions/${regionId}`;
+    // // Fonction de confirmation de suppression
+    // function confirmDelete(regionId, regionName) {
+    //     document.getElementById('regionName').textContent = regionName;
+    //     document.getElementById('deleteForm').action = `/regions/${regionId}`;
         
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        deleteModal.show();
-    }
+    //     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    //     deleteModal.show();
+    // }
 </script>
 @endpush

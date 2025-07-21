@@ -687,7 +687,7 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h2>Suivi de Observatoire des Collectivités Territoriales Décentralisées</h2>
+            <h2>Suivi de l'Observatoire des Collectivités Territoriales Décentralisées</h2>
             <p>Une plateforme moderne pour la gestion et l'analyse transparente des versements annuels des communes camerounaises depuis 2018</p>
             <a href="{{route('dashboard.index')}}"  class="btn">Accéder au Tableau de Bord</a> 
         </div>

@@ -125,21 +125,8 @@ class ReceveurController extends Controller
         return ['Actif', 'Inactif', 'En congé', 'Retraité'];
     }
 
-    // /**
-    //  * Affichage du formulaire de création
-    //  */
-    // public function create()
-    // {
-    //     $communes = Commune::with('departement.region')
-    //                       ->whereNull('receveur_id')
-    //                       ->orWhereDoesntHave('receveurs')
-    //                       ->orderBy('nom')
-    //                       ->get();
-        
-    //     $statuts = ['Actif', 'Inactif', 'En congé', 'Retraité'];
-        
-    //     return view('receveurs.create', compact('communes', 'statuts'));
-    // }
+  
+    
 
     /**
      * Enregistrement d'un nouveau receveur
@@ -236,25 +223,7 @@ class ReceveurController extends Controller
         ));
     }
 
-    // /**
-    //  * Affichage du formulaire de modification
-    //  */
-    // public function edit(Receveur $receveur)
-    // {
-    //     $communes = Commune::with('departement.region')
-    //                       ->where(function($query) use ($receveur) {
-    //                           $query->whereNull('receveur_id')
-    //                                 ->orWhereDoesntHave('receveurs')
-    //                                 ->orWhere('id', $receveur->commune_id);
-    //                       })
-    //                       ->orderBy('nom')
-    //                       ->get();
-        
-    //     $statuts = ['Actif', 'Inactif', 'En congé', 'Retraité'];
-        
-    //     return view('receveurs.edit', compact('receveur', 'communes', 'statuts'));
-    // }
-
+   
     /**
      * Mise à jour d'un receveur
      */
@@ -424,7 +393,7 @@ class ReceveurController extends Controller
         }
     }
 
-    // ================== MÉTHODES PRIVÉES ==================
+   
 
     /**
      * Calculer le taux de validation des dépôts

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+ @extends('layouts.app')
 
 @section('title', 'Nouveau Département - Observatoire des Collectivités')
 @section('page-title', 'Créer un Département')
@@ -58,20 +58,7 @@
                         @enderror
                     </div>
 
-                    {{-- <div class="form-group">
-                        <label for="code" class="required">Code du département</label>
-                        <input type="text" 
-                               id="code" 
-                               name="code" 
-                               value="{{ old('code') }}" 
-                               required
-                               class="form-control @error('code') is-invalid @enderror"
-                               placeholder="Ex: FK"
-                               maxlength="10">
-                        @error('code')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
+                  
 
                     <div class="form-group">
                         <label for="region_id" class="required">Région</label>
@@ -91,69 +78,10 @@
                         @enderror
                     </div>
 
-                    {{-- <div class="form-group">
-                        <label for="chef_lieu">Chef-lieu</label>
-                        <input type="text" 
-                               id="chef_lieu" 
-                               name="chef_lieu" 
-                               value="{{ old('chef_lieu') }}" 
-                               class="form-control @error('chef_lieu') is-invalid @enderror"
-                               placeholder="Ex: Limbe">
-                        @error('chef_lieu')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <!-- Informations complémentaires -->
-                <div class="form-section">
-                    <h3><i class="fas fa-chart-bar"></i> Informations complémentaires</h3>
-                    
-                    <div class="form-group">
-                        <label for="superficie">Superficie (km²)</label>
-                        <input type="number" 
-                               id="superficie" 
-                               name="superficie" 
-                               value="{{ old('superficie') }}" 
-                               step="0.01"
-                               min="0"
-                               class="form-control @error('superficie') is-invalid @enderror"
-                               placeholder="Ex: 2093.2">
-                        @error('superficie')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="population">Population</label>
-                        <input type="number" 
-                               id="population" 
-                               name="population" 
-                               value="{{ old('population') }}" 
-                               min="0"
-                               class="form-control @error('population') is-invalid @enderror"
-                               placeholder="Ex: 534854">
-                        @error('population')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea id="description" 
-                                  name="description" 
-                                  rows="4"
-                                  class="form-control @error('description') is-invalid @enderror"
-                                  placeholder="Description du département...">{{ old('description') }}</textarea>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-            </div> --}}
+    
 
             <!-- Actions -->
-            <div class="form-actions">
+             <div class="form-actions">
                 <a href="{{ route('departements.index') }}" class="btn btn-secondary">
                     <i class="fas fa-times"></i>
                     Annuler
@@ -449,4 +377,424 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-@endsection
+@endsection 
+
+
+{{-- @extends('layouts.app')
+
+@section('title', 'Importer Départements - Observatoire des Collectivités')
+@section('page-title', 'Importer tous les Départements')
+
+@section('content')
+<div class="import-departements">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="{{ route('dashboard.index') }}">Tableau de bord</a>
+        <span>/</span>
+        <a href="{{ route('departements.index') }}">Départements</a>
+        <span>/</span>
+        <span>Importation</span>
+    </div>
+
+    <!-- Messages -->
+    <div id="message-container" style="display: none;"></div>
+
+    <!-- Formulaire d'importation -->
+    <div class="import-container">
+        <div class="import-header">
+            <h2><i class="fas fa-upload"></i> Importation des Départements</h2>
+            <p>Importer tous les 58 départements du Cameroun en une seule fois</p>
+        </div>
+
+        <div class="import-content">
+            <div class="import-info">
+                <h3><i class="fas fa-info-circle"></i> Information</h3>
+                <p>Cette action va créer automatiquement tous les départements du Cameroun dans votre base de données.</p>
+                <ul>
+                    <li>✓ 58 départements seront créés</li>
+                    <li>✓ Répartis dans les 10 régions</li>
+                    <li>✓ Les doublons seront automatiquement ignorés</li>
+                    <li>✓ Opération sécurisée avec transaction</li>
+                </ul>
+            </div>
+
+            <div class="import-actions">
+                <button type="button" id="import-btn" class="btn btn-primary">
+                    <i class="fas fa-download"></i>
+                    Importer tous les départements
+                </button>
+                
+                <a href="{{ route('departements.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour à la liste
+                </a>
+            </div>
+
+            <!-- Barre de progression -->
+            <div id="progress-container" style="display: none;" class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="progress-text" class="progress-text">Importation en cours...</div>
+            </div>
+
+            <!-- Résultats -->
+            <div id="results-container" style="display: none;" class="results-container">
+                <h3><i class="fas fa-check-circle"></i> Résultats de l'importation</h3>
+                <div id="results-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('styles')
+<style>
+.import-departements {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.import-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.import-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.import-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.import-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 16px;
+}
+
+.import-content {
+    padding: 40px;
+}
+
+.import-info {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    border-left: 4px solid #28a745;
+}
+
+.import-info h3 {
+    margin: 0 0 15px 0;
+    color: #28a745;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.import-info ul {
+    margin: 15px 0 0 0;
+    padding-left: 20px;
+}
+
+.import-info li {
+    margin-bottom: 8px;
+    color: #495057;
+}
+
+.import-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.btn {
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.progress-container {
+    margin: 30px 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    font-weight: 600;
+    color: #495057;
+}
+
+.results-container {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.results-container h3 {
+    margin: 0 0 15px 0;
+    color: #155724;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.breadcrumb {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: #28a745;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb span {
+    color: #6c757d;
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const importBtn = document.getElementById('import-btn');
+    const progressContainer = document.getElementById('progress-container');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const resultsContainer = document.getElementById('results-container');
+    const resultsContent = document.getElementById('results-content');
+    const messageContainer = document.getElementById('message-container');
+
+    importBtn.addEventListener('click', function() {
+        // Confirmer l'action
+        if (!confirm('Êtes-vous sûr de vouloir importer tous les départements ? Cette action ne peut pas être annulée.')) {
+            return;
+        }
+
+        // Désactiver le bouton et afficher la progression
+        importBtn.disabled = true;
+        progressContainer.style.display = 'block';
+        resultsContainer.style.display = 'none';
+        messageContainer.style.display = 'none';
+
+        // Simuler la progression
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            progressFill.style.width = progress + '%';
+            progressText.textContent = `Importation en cours... ${progress}%`;
+            
+            if (progress >= 90) {
+                clearInterval(progressInterval);
+            }
+        }, 200);
+
+        // Effectuer la requête AJAX
+        fetch('{{ route("departements.import") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            progressFill.style.width = '100%';
+            progressText.textContent = 'Importation terminée !';
+
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                
+                if (data.success) {
+                    showResults(data);
+                } else {
+                    showMessage('danger', data.message || 'Erreur lors de l\'importation');
+                }
+                
+                importBtn.disabled = false;
+            }, 1000);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            progressContainer.style.display = 'none';
+            showMessage('danger', 'Erreur de connexion lors de l\'importation');
+            importBtn.disabled = false;
+        });
+    });
+
+    function showResults(data) {
+        const stats = data.statistics;
+        
+        let html = `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${stats.created}</div>
+                    <div class="stat-label">Départements créés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.skipped}</div>
+                    <div class="stat-label">Départements ignorés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.errors}</div>
+                    <div class="stat-label">Erreurs</div>
+                </div>
+            </div>
+        `;
+
+        if (stats.errors > 0 && data.errors.length > 0) {
+            html += `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong>Erreurs rencontrées :</strong>
+                        <ul style="margin: 10px 0 0 20px;">
+                            ${data.errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        resultsContent.innerHTML = html;
+        resultsContainer.style.display = 'block';
+    }
+
+    function showMessage(type, message) {
+        messageContainer.innerHTML = `
+            <div class="alert alert-${type}">
+                <i class="fas fa-${type === 'success' ? 'check' : type === 'danger' ? 'times' : 'exclamation-triangle'}"></i>
+                <div>${message}</div>
+            </div>
+        `;
+        messageContainer.style.display = 'block';
+    }
+});
+</script>
+@endpush
+@endsection --}}

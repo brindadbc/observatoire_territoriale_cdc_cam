@@ -75,7 +75,7 @@
     </div> --}}
 
 
-    <!-- Filtres -->
+    {{-- <!-- Filtres -->
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Filtres de Rapport</h6>
@@ -537,4 +537,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-@endsection
+@endsection --}}

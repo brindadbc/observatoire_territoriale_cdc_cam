@@ -22,9 +22,11 @@ class realisation extends Model
     protected $dates = [
         'date_realisation'
     ];
+
     
     protected $casts = [
-        'montant' => 'decimal:2'
+        'montant' => 'decimal:2',
+        'date_realisation' => 'datetime',
     ];
     
     
@@ -54,4 +56,11 @@ class realisation extends Model
         
         return $this->montant - $this->prevision->montant;
     }
+
+    
+    public function tauxRealisation()
+{
+    return $this->hasOne(Taux_Realisation::class, 'commune_id', 'commune_id')
+                ->where('annee_exercice', $this->annee_exercice);
+}
 }

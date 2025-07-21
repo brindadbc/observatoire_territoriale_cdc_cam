@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('realisations', function (Blueprint $table) {
             $table->id();
             $table->string('annee_exercice');
-            $table->decimal('montant');
+            $table->decimal('montant', 25, 2);
             $table->date('date_realisation');
             $table->foreignId('prevision_id')->constrained()->onDelete('cascade');
              $table->foreignId('commune_id')->constrained()->onDelete('cascade');

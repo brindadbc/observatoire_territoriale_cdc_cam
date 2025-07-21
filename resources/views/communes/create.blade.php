@@ -358,37 +358,7 @@
                         @enderror
                     </div>
 
-                     {{-- <div class="form-group">
-                        <label for="email">Email</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            class="form-control @error('email') is-invalid @enderror" 
-                            value="{{ old('email') }}"
-                            placeholder="commune@example.com"
-                        >
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="adresse">Adresse</label>
-                        <textarea 
-                            id="adresse" 
-                            name="adresse" 
-                            class="form-control @error('adresse') is-invalid @enderror" 
-                            rows="3"
-                            placeholder="Adresse complète de la mairie"
-                        >{{ old('adresse') }}</textarea>
-                        @error('adresse')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
-                {{-- </div>
-            </div> --}}
-
+                     
             <!-- Informations démographiques -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -396,39 +366,7 @@
                     Informations démographiques
                 </h3>
                 
-                {{-- <div class="form-row">
-                    <div class="form-group">
-                        <label for="population">Population</label>
-                        <input 
-                            type="number" 
-                            id="population" 
-                            name="population" 
-                            class="form-control @error('population') is-invalid @enderror" 
-                            value="{{ old('population') }}"
-                            min="0"
-                            placeholder="Nombre d'habitants"
-                        >
-                        @error('population')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="superficie">Superficie (km²)</label>
-                        <input 
-                            type="number" 
-                            id="superficie" 
-                            name="superficie" 
-                            class="form-control @error('superficie') is-invalid @enderror" 
-                            value="{{ old('superficie') }}"
-                            min="0"
-                            step="0.01"
-                            placeholder="Superficie en km²"
-                        >
-                        @error('superficie')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div> --}}
+                
                 </div>
             </div> 
 
