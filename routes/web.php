@@ -16,6 +16,7 @@ use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RealisationController;
 use App\Http\Controllers\ReceveurController;
 use App\Http\Controllers\RegionController;
+use App\Http\Controllers\RessourcesPropresController;
 use App\Http\Controllers\RetardController;
 use App\Http\Controllers\StatistiquesController;
 use App\Http\Controllers\Taux_RealisationController;
@@ -804,3 +805,138 @@ Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::get('/dashboard/charts/{type}', [DashboardController::class, 'getChartData']);
     Route::get('/dashboard/alertes', [DashboardController::class, 'getAlertes']);
  });
+
+
+
+//  // TERRITOIRE
+// Route::prefix('territoire')->group(function () {
+//     // Régions
+//     Route::resource('regions', RegionController::class)->only(['index', 'show']);
+    
+//     // Départements
+//     Route::resource('departements', DepartementController::class)->only(['index', 'show']);
+    
+//     // Communes
+//     Route::resource('communes', CommuneController::class)->only(['index', 'show']);
+//     Route::get('communes/export', [CommuneController::class, 'export'])->name('communes.export');
+// });
+
+// // BUDGET ANNUEL
+// Route::prefix('budget')->group(function () {
+//     // Vue générale des budgets
+//     Route::get('/', [BudgetController::class, 'index'])->name('budgets.index');
+//     Route::get('/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
+    
+//     // Ressources transférées par l'État
+//     Route::get('/ressources/transferees', [BudgetController::class, 'ressourcesTransferees'])
+//         ->name('ressources-transferees.index');
+    
+//     // Ressources propres des communes
+//     Route::get('/ressources/propres', [BudgetController::class, 'ressourcesPropres'])
+//         ->name('ressources-propres.index');
+    
+//     // Donations extérieures
+//     Route::get('/donations/exterieures', [BudgetController::class, 'donationsExterieures'])
+//         ->name('donations-exterieures.index');
+    
+//     // Emplois - Infrastructures
+//     Route::get('/emplois/infrastructures', [BudgetController::class, 'emploisInfrastructures'])
+//         ->name('infrastructures.index');
+    
+//     // Emplois - Équipements
+//     Route::get('/emplois/equipements', [BudgetController::class, 'emploisEquipements'])
+//         ->name('equipements.index');
+    
+//     // Emplois - Services sociaux
+//     Route::get('/emplois/services-sociaux', [BudgetController::class, 'emploisServicesSociaux'])
+//         ->name('services-sociaux.index');
+    
+//     // Emplois - Fonctionnement
+//     Route::get('/emplois/fonctionnement', [BudgetController::class, 'emploisFonctionnement'])
+//         ->name('fonctionnement.index');
+    
+//     // Exécution budgétaire
+//     Route::get('/execution', [BudgetController::class, 'executionBudgetaire'])
+//         ->name('execution-budgetaire.index');
+// });
+
+// // GOUVERNANCE
+// Route::prefix('gouvernance')->group(function () {
+//     // Ordonnateurs
+//     Route::resource('ordonnateurs', OrdonnateurController::class)->only(['index', 'show']);
+    
+//     // Receveurs municipaux
+//     Route::resource('receveurs', ReceveurController::class)->only(['index', 'show']);
+    
+//     // Dépôt de comptes
+//     Route::resource('depot-comptes', DepotCompteController::class)->only(['index', 'show']);
+//     Route::get('depot-comptes/retards/analyse', [DepotCompteController::class, 'analyseRetards'])
+//         ->name('depot-comptes.retards');
+// });
+
+// // ENDETTEMENT
+// Route::prefix('endettement')->group(function () {
+//     // Vue générale des dettes
+//     Route::get('/', [DetteController::class, 'index'])->name('dettes.index');
+    
+//     // Dettes par type
+//     Route::get('/cnps', [DetteController::class, 'byCnps'])->name('dettes-cnps.index');
+//     Route::get('/salariales', [DetteController::class, 'bySalariale'])->name('dettes-salariale.index');
+//     Route::get('/fiscales', [DetteController::class, 'byFiscale'])->name('dettes-fiscale.index');
+//     Route::get('/feicom', [DetteController::class, 'byFeicom'])->name('dettes-feicom.index');
+    
+//     // Analyses spécifiques
+//     Route::get('/evolution', [DetteController::class, 'evolution'])->name('dettes.evolution');
+//     Route::get('/communes-critiques', [DetteController::class, 'communesCritiques'])
+//         ->name('dettes.communes-critiques');
+// });
+
+// // DÉFAILLANCES
+// Route::prefix('defaillances')->group(function () {
+//     // Retards de dépôt
+//     Route::get('/retards-depot', [DepotCompteController::class, 'retards'])
+//         ->name('retards-depot.index');
+    
+//     // Défaillances de gestion
+//     Route::get('/gestion', [IndicateurController::class, 'defaillancesGestion'])
+//         ->name('defaillances-gestion.index');
+    
+//     // Système d'alertes
+//     Route::get('/alertes', [IndicateurController::class, 'alertes'])
+//         ->name('alertes.index');
+// });
+
+// // INDICATEURS & PERFORMANCE
+// Route::prefix('indicateurs')->group(function () {
+//     Route::get('/', [IndicateurController::class, 'index'])->name('indicateurs.index');
+//     Route::get('/performance', [IndicateurController::class, 'performance'])
+//         ->name('indicateurs.performance');
+//     Route::get('/comparatifs', [IndicateurController::class, 'comparatifs'])
+//         ->name('indicateurs.comparatifs');
+//     Route::get('/evolution', [IndicateurController::class, 'evolution'])
+//         ->name('indicateurs.evolution');
+// });
+
+// RAPPORTS & ANALYSES
+Route::prefix('rapports')->group(function () {
+    // Performance financière
+    Route::get('/performance-financiere', [RapportController::class, 'performanceFinanciere'])
+        ->name('rapports-performance.index');
+    
+    // Gouvernance locale
+    Route::get('/gouvernance-locale', [RapportController::class, 'gouvernanceLocale'])
+        ->name('rapports-gouvernance.index');
+    
+    // Synthèse annuelle
+    Route::get('/synthese-annuelle', [RapportController::class, 'syntheseAnnuelle'])
+        ->name('synthese-annuelle.index');
+     });
+
+     Route::resource('ressources-commune', RessourcesPropresController::class);
+Route::delete('ressources-commune/{ressource}', [RessourcesPropresController::class, 'destroy'])
+    ->name('ressources-commune.destroy');
+   Route::put('ressources-commune/{id}', [RessourcesPropresController::class, 'update'])
+    ->name('ressources-commune.update');
+
+    Route::get('departements/{departement}/export', [DepartementController::class, 'export'])->name('departements.export');
+Route::get('departements/search/ajax', [DepartementController::class, 'search'])->name('departements.search');

@@ -537,7 +537,7 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="/">Accueil</a></li>
                     <li><a href="#">À propos</a></li>
                     <li><a href="#">Statistiques</a></li>
                     <li><a href="contact.html" class="active">Contact</a></li>

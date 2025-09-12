@@ -106,7 +106,7 @@
 
         .menu-section h4 {
             font-size: 11px;
-            color: #4a5568;
+            color: #3276edf5;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -388,7 +388,7 @@
                                     </a>
                                 </li>
                                 <li class="{{ request()->is('ressources-propres*') ? 'active' : '' }}">
-                                    {{-- <a href="{{ route('ressources-propres.index') }}"> --}}
+                                    <a href="{{ route('ressources-commune.index') }}">
                                         <span>Ressources propres</span>
                                     </a>
                                 </li>
@@ -409,7 +409,7 @@
                         <li>
                             <a href="javascript:void(0)" class="menu-toggle" onclick="toggleSubmenu('emplois')">
                                 <i class="fas fa-tasks"></i>
-                                <span>Emplois</span>
+                                <span>Realisations</span>
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                             <ul class="submenu" id="emplois">
@@ -430,7 +430,7 @@
                                 </li>
                                 <li class="{{ request()->is('fonctionnement*') ? 'active' : '' }}">
                                     {{-- <a href="{{ route('fonctionnement.index') }}"> --}}
-                                        <span>Fonctionnement</span>
+                                        <span>Autres realisation</span>
                                     </a>
                                 </li>
                             </ul>
