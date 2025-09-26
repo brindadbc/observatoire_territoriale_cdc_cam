@@ -903,7 +903,7 @@ body {
                         <th><i class="fas fa-calculator"></i> Prévision</th>
                         <th><i class="fas fa-coins"></i> Réalisation</th>
                         <th><i class="fas fa-percentage"></i> Taux</th>
-                        <th><i class="fas fa-star"></i> Évaluation</th>
+                        {{-- <th><i class="fas fa-star"></i> Évaluation</th> --}}
                         <th><i class="fas fa-credit-card"></i> Dettes</th>
                         <th><i class="fas fa-exclamation"></i> Défaillances</th>
                         <th><i class="fas fa-clock"></i> Retards</th>
@@ -945,7 +945,7 @@ body {
                                 {{ number_format($commune['taux_realisation'], 1) }}%
                             </span>
                         </td>
-                        <td>{{ $commune['evaluation'] }}</td>
+                        {{-- <td>{{ $commune['evaluation'] }}</td> --}}
                         <td>{{ number_format($commune['dettes_total'], 0) }} FCFA</td>
                         <td>
                             @if($commune['nb_defaillances'] > 0)

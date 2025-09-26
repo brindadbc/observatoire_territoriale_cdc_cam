@@ -130,7 +130,7 @@
                                     <select class="form-select @error('commune_id') is-invalid @enderror" 
                                             id="commune_id" 
                                             name="commune_id">
-                                        <option value="">Sélectionner une commune (optionnel)</option>
+                                        <option value="">Sélectionner une commune </option>
                                         @foreach($communes as $commune)
                                             <option value="{{ $commune->id }}" {{ old('commune_id') == $commune->id ? 'selected' : '' }}>
                                                 {{ $commune->nom }} - {{ $commune->departement->nom }} ({{ $commune->departement->region->nom }})

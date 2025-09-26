@@ -56,4 +56,59 @@ class Region extends Model
         $this->nombre_communes = $this->communes()->count();
         $this->save();
     }
+
+    /**
+     * Accesseur pour obtenir le nombre de départements
+     */
+    public function getNombreDepartementsAttribute()
+    {
+        return $this->departements()->count();
+    }
+
+    /**
+     * Accesseur pour obtenir le nombre de communes
+     */
+    public function getNombreCommunesAttribute()
+    {
+        return $this->communes()->count();
+    }
+
+    /**
+     * Accesseur pour obtenir la densité de population
+     */
+    public function getDensiteAttribute()
+    {
+        if ($this->superficie && $this->population) {
+            return round($this->population / $this->superficie, 1);
+        }
+        return null;
+    }
+
+    /**
+     * Scope pour rechercher par nom
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('nom', 'like', "%{$search}%")
+              ->orWhere('code', 'like', "%{$search}%")
+              ->orWhere('chef_lieu', 'like', "%{$search}%");
+        });
+    }
+
+    /**
+     * Scope pour ordonner par population
+     */
+    public function scopeOrderByPopulation($query, $direction = 'desc')
+    {
+        return $query->orderBy('population', $direction);
+    }
+
+    /**
+     * Scope pour ordonner par superficie
+     */
+    public function scopeOrderBySuperficie($query, $direction = 'desc')
+    {
+        return $query->orderBy('superficie', $direction);
+    }
 }

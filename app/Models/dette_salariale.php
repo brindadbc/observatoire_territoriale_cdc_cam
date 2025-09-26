@@ -13,6 +13,7 @@ class dette_salariale extends Model
     protected $fillable = [
         'montant',
         'date_evaluation',
+        'annee_exercice', 
         'commune_id'
     ];
     

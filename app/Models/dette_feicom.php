@@ -13,6 +13,7 @@ class dette_feicom extends Model
     protected $fillable = [
         'montant',
         'date_evaluation',
+        'annee_exercice', 
         'commune_id'
     ];
     

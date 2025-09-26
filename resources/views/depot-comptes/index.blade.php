@@ -239,7 +239,7 @@
                                             <div class="avatar-sm rounded-circle bg-light d-flex align-items-center justify-content-center me-2">
                                                 <i class="fas fa-user text-info"></i>
                                             </div>
-                                            <span>{{ $depot->receveur->nom }}</span>
+                                            <span>{{ $depot->receveur->nom ?? 'Non assigné' }}</span>
                                         </div>
                                     </td>
                                     <td>

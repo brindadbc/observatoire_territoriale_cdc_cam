@@ -14,6 +14,7 @@ class Defaillance extends Model
         'type_defaillance',
         'description',
         'date_constat',
+        'annee_exercice', 
         'gravite',
         'est_resolue',
         'commune_id'

@@ -754,6 +754,7 @@
                     <p class="header-subtitle">Gestion et suivi des 384 collectivités territoriales décentralisées</p>
                 </div>
                 <div class="quick-actions">
+                    
                     <a href="{{ route('communes.create') }}" class="btn-primary-gradient">
                         <i class="fas fa-plus"></i>
                         Nouvelle Commune
@@ -972,10 +973,10 @@
                         </button>
                     </div>
                     <select class="form-control form-select" style="width: auto;" onchange="changePerPage(this.value)">
-                        <option value="15" {{ request('per_page') == '15' ? 'selected' : '' }}>15 par page</option>
                         <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 par page</option>
                         <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 par page</option>
                         <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100 par page</option>
+                         <option value="384" {{ request('per_page') == '384' ? 'selected' : '' }}>384 par page</option>
                     </select>
                 </div>
             </div>

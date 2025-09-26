@@ -73,7 +73,7 @@
                                 </tr>
                                 <tr>
                                     <td class="fw-bold text-muted">Receveur:</td>
-                                    <td>{{ $depotCompte->receveur->nom }}</td>
+                                    <td>{{ $depotCompte->receveur->nom ?? 'Non assigné' }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -200,7 +200,7 @@
                                         <tr class="{{ $depot->id == $depotCompte->id ? 'table-active' : '' }}">
                                             <td>{{ $depot->annee_exercice }}</td>
                                             <td>{{ \Carbon\Carbon::parse($depot->date_depot)->format('d/m/Y') }}</td>
-                                            <td>{{ $depot->receveur->nom }}</td>
+                                            <td>{{ $depot->receveur->nom ?? 'Non assigné' }}</td>
                                             <td>
                                                 @if($depot->validation)
                                                     <span class="badge bg-success">Validé</span>

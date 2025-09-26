@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\Dette_FeicomController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class Commune extends Model
 {
@@ -71,28 +74,28 @@ class Commune extends Model
         return $this->hasMany(Depot_compte::class);
     }
 
-    /**
-     * Obtenir les différents types de dettes
-     */
-    public function dettesCnps()
-    {
-        return $this->hasMany(Dette_cnps::class);
-    }
+  /**
+ * Obtenir les différents types de dettes - CORRECTIONS
+ */
+public function dettesCnps()
+{
+    return $this->hasMany(Dette_cnps::class); 
+}
 
-    public function dettesFeicom()
-    {
-        return $this->hasMany(Dette_feicom::class);
-    }
+public function dettesFeicom()
+{
+    return $this->hasMany(dette_feicom::class);
+}
 
-    public function dettesSalariale()
-    {
-        return $this->hasMany(Dette_salariale::class);
-    }
+public function dettesSalariale()
+{
+    return $this->hasMany(dette_salariale::class);
+}
 
-    public function dettesFiscale()
-    {
-        return $this->hasMany(Dette_fiscale::class);
-    }
+public function dettesFiscale()
+{
+    return $this->hasMany(dette_fiscale::class);
+}
 
     /**
      * Obtenir les prévisions de cette commune
@@ -134,20 +137,20 @@ class Commune extends Model
         return $this->hasMany(Defaillance::class);
     }
 
-    public function indicateursPerformance()
-    {
-        return $this->hasMany(IndicateurPerformance::class);
-    }
+    // public function indicateursPerformance()
+    // {
+    //     return $this->hasMany(IndicateurPerformance::class);
+    // }
 
     public function budgets()
     {
-        return $this->hasMany(Budget::class);
+        return $this->hasMany(Budgets::class);
     }
 
     public function budgetAnnuel($annee = null)
     {
         $annee = $annee ?? date('Y');
-        return $this->hasOne(Budget::class)->where('annee', $annee);
+        return $this->hasOne(Budgets::class)->where('annee', $annee);
     }
 
     /**
@@ -236,4 +239,65 @@ class Commune extends Model
             ->where('created_at', '>', now()->subDays($days))
             ->exists();
     }
+
+public function getDonneesPeriodiques($annee, $periode = 'mensuelle')
+{
+    if ($periode === 'annuelle') {
+        return collect(); // Collection vide
+    }
+    
+    $query = $this->realisations()->where('annee_exercice', $annee);
+    
+    switch ($periode) {
+        case 'mensuelle':
+            $query->select(
+                DB::raw('MONTH(date_realisation) as mois'),
+                DB::raw('SUM(montant) as montant_total'),
+                DB::raw('COUNT(*) as nombre_operations')
+            )->groupBy(DB::raw('MONTH(date_realisation)'));
+            break;
+            
+        case 'trimestrielle':
+            $query->select(
+                DB::raw('QUARTER(date_realisation) as trimestre'),
+                DB::raw('SUM(montant) as montant_total'),
+                DB::raw('COUNT(*) as nombre_operations')
+            )->groupBy(DB::raw('QUARTER(date_realisation)'));
+            break;
+            
+        default:
+            // Par défaut, grouper par période si la colonne existe
+            if (Schema::hasColumn('realisations', 'periode')) {
+                $query->select(
+                    'periode',
+                    DB::raw('SUM(montant) as montant_total'),
+                    DB::raw('COUNT(*) as nombre_operations')
+                )->groupBy('periode');
+            }
+            break;
+    }
+    
+    return $query->get(); // Toujours une collection
+}
+
+/**
+ * Récupère les données financières complètes pour une année
+ */
+public function getDonneesFinancieresCompletes($annee, $periode = 'annuelle')
+{
+    $prevision = $this->previsions()->where('annee_exercice', $annee)->first();
+    $realisations = $this->realisations()->where('annee_exercice', $annee)->get();
+    $tauxRealisation = $this->tauxRealisations()->where('annee_exercice', $annee)->first();
+    
+    return [
+        'prevision' => $prevision?->montant ?? 0,
+        'realisation_total' => $realisations->sum('montant'),
+        'taux_realisation' => $tauxRealisation?->pourcentage ?? 0,
+        'evaluation' => $tauxRealisation?->evaluation ?? 'Non évalué',
+        'ecart' => $tauxRealisation?->ecart ?? 0,
+        'donnees_periodiques' => $this->getDonneesPeriodiques($annee, $periode),
+        'realisations_detail' => $realisations
+    ];
+}
+    
 }

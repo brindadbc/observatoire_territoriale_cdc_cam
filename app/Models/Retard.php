@@ -14,6 +14,7 @@ class Retard extends Model
         'type_retard',
         'duree_jours',
         'date_constat',
+        'annee_exercice', 
         'date_retard',
         'commune_id'
     ];

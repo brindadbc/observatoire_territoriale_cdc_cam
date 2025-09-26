@@ -940,3 +940,10 @@ Route::delete('ressources-commune/{ressource}', [RessourcesPropresController::cl
 
     Route::get('departements/{departement}/export', [DepartementController::class, 'export'])->name('departements.export');
 Route::get('departements/search/ajax', [DepartementController::class, 'search'])->name('departements.search');
+
+
+
+
+
+
+

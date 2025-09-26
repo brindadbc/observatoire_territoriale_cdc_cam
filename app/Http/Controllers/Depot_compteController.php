@@ -89,92 +89,17 @@ class Depot_compteController extends Controller
         return view('depot-comptes.create', compact('communes', 'receveurs'));
     }
 
-    /**
-     * Enregistrement d'un nouveau dépôt de compte
-     */
-    public function store(Request $request)
+public function show(Depot_compte $depotCompte)
     {
-        $validator = Validator::make($request->all(), [
-            'commune_id' => 'required|exists:communes,id',
-            'receveur_id' => 'required|exists:receveurs,id',
-            'date_depot' => 'required|date|before_or_equal:today',
-            'annee_exercice' => 'required|integer|min:2000|max:' . (date('Y') + 1),
-            'validation' => 'boolean'
-        ], [
-            'commune_id.required' => 'Vous devez sélectionner une commune.',
-            'commune_id.exists' => 'La commune sélectionnée n\'existe pas.',
-            'receveur_id.required' => 'Vous devez sélectionner un receveur.',
-            'receveur_id.exists' => 'Le receveur sélectionné n\'existe pas.',
-            'date_depot.required' => 'La date de dépôt est obligatoire.',
-            'date_depot.date' => 'La date de dépôt doit être une date valide.',
-            'date_depot.before_or_equal' => 'La date de dépôt ne peut pas être dans le futur.',
-            'annee_exercice.required' => 'L\'année d\'exercice est obligatoire.',
-            'annee_exercice.integer' => 'L\'année d\'exercice doit être un nombre entier.',
-            'annee_exercice.min' => 'L\'année d\'exercice ne peut pas être antérieure à 2000.',
-            'annee_exercice.max' => 'L\'année d\'exercice ne peut pas dépasser ' . (date('Y') + 1) . '.'
-        ]);
+        $depotCompte->load(['commune.departement.region', 'receveur']);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        // Vérifier s'il existe déjà un dépôt pour cette commune et cette année
-        $existingDepot = Depot_compte::where('commune_id', $request->commune_id)
-                                   ->where('annee_exercice', $request->annee_exercice)
-                                   ->first();
-
-        if ($existingDepot) {
-            return redirect()->back()
-                ->with('error', 'Un dépôt de compte existe déjà pour cette commune pour l\'année ' . $request->annee_exercice)
-                ->withInput();
-        }
-
-        DB::beginTransaction();
-        try {
-            $depotCompte = Depot_compte::create([
-                'commune_id' => $request->commune_id,
-                'receveur_id' => $request->receveur_id,
-                'date_depot' => $request->date_depot,
-                'annee_exercice' => $request->annee_exercice,
-                'validation' => $request->has('validation') ? true : false
-            ]);
-
-            DB::commit();
-            
-            return redirect()->route('depot-comptes.show', $depotCompte)
-                           ->with('success', 'Dépôt de compte enregistré avec succès.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->withInput()
-                        ->with('error', 'Erreur lors de l\'enregistrement: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Affichage des détails d'un dépôt de compte
-     */
-    public function show(Depot_compte $depotCompte)
-    {
-        $depotCompte->load([
-            'commune.departement.region',
-            'commune.previsions' => function($query) use ($depotCompte) {
-                $query->where('annee_exercice', $depotCompte->annee_exercice);
-            },
-            'commune.realisations' => function($query) use ($depotCompte) {
-                $query->where('annee_exercice', $depotCompte->annee_exercice);
-            },
-            'commune.tauxRealisations' => function($query) use ($depotCompte) {
-                $query->where('annee_exercice', $depotCompte->annee_exercice);
-            },
-            'receveur'
-        ]);
+        // Vérifier si le receveur existe
+        $nomReceveur = $depotCompte->receveur ? $depotCompte->receveur->nom : 'Non assigné';
         
-        // Données financières de la commune pour l'année du dépôt
+        // Données financières (vous devrez adapter selon vos modèles)
         $donneesFinancieres = $this->getDonneesFinancieresCommune($depotCompte->commune, $depotCompte->annee_exercice);
         
-        // Historique des dépôts de cette commune
+        // Historique des dépôts de la commune
         $historiqueDepots = $this->getHistoriqueDepots($depotCompte->commune_id);
         
         return view('depot-comptes.show', compact(
@@ -182,85 +107,183 @@ class Depot_compteController extends Controller
         ));
     }
 
-    /**
-     * Affichage du formulaire de modification
-     */
-    public function edit(Depot_compte $depotCompte)
-    {
-        $depotCompte->load(['commune', 'receveur']);
-        
-        $communes = Commune::with(['departement.region', 'receveurs'])
-                           ->orderBy('nom')
-                           ->get();
-        
-        $receveurs = Receveur::orderBy('nom')->get();
-        
-        return view('depot-comptes.edit', compact('depotCompte', 'communes', 'receveurs'));
+
+    public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'commune_id' => 'required|exists:communes,id',
+        'receveur_id' => 'nullable|exists:receveurs,id',
+        'date_depot' => 'required|date|before_or_equal:today',
+        'annee_exercice' => 'required|integer|min:2000|max:' . (date('Y') + 1),
+        'type' => 'required|in:budget_primitif,compte_administratif,budget_supplementaire,decision_modificative',
+        'date_limite_depot' => 'required|date',
+        'statut' => 'required|in:depose,non_depose,en_attente',
+        'jours_retard' => 'nullable|integer|min:0',
+        'observations' => 'nullable|string|max:1000',
+        'validation' => 'boolean'
+    ], [
+        'commune_id.required' => 'Vous devez sélectionner une commune.',
+        'commune_id.exists' => 'La commune sélectionnée n\'existe pas.',
+        'receveur_id.exists' => 'Le receveur sélectionné n\'existe pas.',
+        'date_depot.required' => 'La date de dépôt est obligatoire.',
+        'date_depot.date' => 'La date de dépôt doit être une date valide.',
+        'date_depot.before_or_equal' => 'La date de dépôt ne peut pas être dans le futur.',
+        'annee_exercice.required' => 'L\'année d\'exercice est obligatoire.',
+        'annee_exercice.integer' => 'L\'année d\'exercice doit être un nombre entier.',
+        'annee_exercice.min' => 'L\'année d\'exercice ne peut pas être antérieure à 2000.',
+        'annee_exercice.max' => 'L\'année d\'exercice ne peut pas dépasser ' . (date('Y') + 1) . '.',
+        'type.required' => 'Le type de dépôt est obligatoire.',
+        'type.in' => 'Le type de dépôt sélectionné n\'est pas valide.',
+        'date_limite_depot.required' => 'La date limite de dépôt est obligatoire.',
+        'date_limite_depot.date' => 'La date limite de dépôt doit être une date valide.',
+        'statut.required' => 'Le statut est obligatoire.',
+        'statut.in' => 'Le statut sélectionné n\'est pas valide.',
+        'observations.max' => 'Les observations ne peuvent pas dépasser 1000 caractères.'
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
     }
 
-    /**
-     * Mise à jour d'un dépôt de compte
-     */
-    public function update(Request $request, Depot_compte $depotCompte)
-    {
-        $validator = Validator::make($request->all(), [
-            'commune_id' => 'required|exists:communes,id',
-            'receveur_id' => 'required|exists:receveurs,id',
-            'date_depot' => 'required|date|before_or_equal:today',
-            'annee_exercice' => 'required|integer|min:2000|max:' . (date('Y') + 1),
-            'validation' => 'boolean'
-        ], [
-            'commune_id.required' => 'Vous devez sélectionner une commune.',
-            'commune_id.exists' => 'La commune sélectionnée n\'existe pas.',
-            'receveur_id.required' => 'Vous devez sélectionner un receveur.',
-            'receveur_id.exists' => 'Le receveur sélectionné n\'existe pas.',
-            'date_depot.required' => 'La date de dépôt est obligatoire.',
-            'date_depot.date' => 'La date de dépôt doit être une date valide.',
-            'date_depot.before_or_equal' => 'La date de dépôt ne peut pas être dans le futur.',
-            'annee_exercice.required' => 'L\'année d\'exercice est obligatoire.',
-            'annee_exercice.integer' => 'L\'année d\'exercice doit être un nombre entier.',
-            'annee_exercice.min' => 'L\'année d\'exercice ne peut pas être antérieure à 2000.',
-            'annee_exercice.max' => 'L\'année d\'exercice ne peut pas dépasser ' . (date('Y') + 1) . '.'
+    // Vérifier s'il existe déjà un dépôt pour cette commune, cette année et ce type
+    $existingDepot = Depot_compte::where('commune_id', $request->commune_id)
+                                 ->where('annee_exercice', $request->annee_exercice)
+                                 ->where('type', $request->type)
+                                 ->first();
+
+    if ($existingDepot) {
+        return redirect()->back()
+            ->with('error', 'Un dépôt de compte de type "' . $request->type . '" existe déjà pour cette commune pour l\'année ' . $request->annee_exercice)
+            ->withInput();
+    }
+
+    DB::beginTransaction();
+    try {
+        // Calculer les jours de retard si pas fourni
+        $joursRetard = $request->jours_retard;
+        if ($joursRetard === null) {
+            $dateDepot = Carbon::parse($request->date_depot);
+            $dateLimite = Carbon::parse($request->date_limite_depot);
+            $joursRetard = $dateDepot > $dateLimite ? $dateDepot->diffInDays($dateLimite) : 0;
+        }
+
+        $depotCompte = Depot_compte::create([
+            'commune_id' => $request->commune_id,
+            'receveur_id' => $request->receveur_id,
+            'date_depot' => $request->date_depot,
+            'date_depot_effectif' => $request->date_depot, // Utiliser la même date
+            'annee_exercice' => $request->annee_exercice,
+            'type' => $request->type,
+            'date_limite_depot' => $request->date_limite_depot,
+            'statut' => $request->statut,
+            'jours_retard' => $joursRetard,
+            'observations' => $request->observations,
+            'validation' => $request->has('validation') ? true : false
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        // Vérifier les doublons (exclure l'enregistrement actuel)
-        $existingDepot = Depot_compte::where('commune_id', $request->commune_id)
-                                   ->where('annee_exercice', $request->annee_exercice)
-                                   ->where('id', '!=', $depotCompte->id)
-                                   ->first();
-
-        if ($existingDepot) {
-            return redirect()->back()
-                ->with('error', 'Un dépôt de compte existe déjà pour cette commune pour l\'année ' . $request->annee_exercice)
-                ->withInput();
-        }
-
-        DB::beginTransaction();
-        try {
-            $depotCompte->update([
-                'commune_id' => $request->commune_id,
-                'receveur_id' => $request->receveur_id,
-                'date_depot' => $request->date_depot,
-                'annee_exercice' => $request->annee_exercice,
-                'validation' => $request->has('validation') ? true : false
-            ]);
-
-            DB::commit();
-            
-            return redirect()->route('depot-comptes.show', $depotCompte)
-                           ->with('success', 'Dépôt de compte mis à jour avec succès.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->withInput()
-                        ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
-        }
+        DB::commit();
+        
+        return redirect()->route('depot-comptes.show', $depotCompte)
+                       ->with('success', 'Dépôt de compte enregistré avec succès.');
+    } catch (\Exception $e) {
+        DB::rollback();
+        return back()->withInput()
+                    ->with('error', 'Erreur lors de l\'enregistrement: ' . $e->getMessage());
     }
+}
+
+/**
+ * Affichage du formulaire de modification
+ */
+public function edit(Depot_compte $depotCompte)
+{
+    // Charger les relations nécessaires
+    $depotCompte->load(['commune.departement.region', 'receveur']);
+    
+    // Communes avec leurs receveurs
+    $communes = Commune::with(['departement.region', 'receveurs'])
+                       ->orderBy('nom')
+                       ->get();
+    
+    // Receveurs disponibles
+    $receveurs = Receveur::orderBy('nom')->get();
+    
+    return view('depot-comptes.edit', compact('depotCompte', 'communes', 'receveurs'));
+}
+
+// Mettre à jour aussi la méthode update() de la même façon :
+public function update(Request $request, Depot_compte $depotCompte)
+{
+    $validator = Validator::make($request->all(), [
+        'commune_id' => 'required|exists:communes,id',
+        'receveur_id' => 'nullable|exists:receveurs,id',
+        'date_depot' => 'required|date|before_or_equal:today',
+        'annee_exercice' => 'required|integer|min:2000|max:' . (date('Y') + 1),
+        'type' => 'required|in:budget_primitif,compte_administratif,budget_supplementaire,decision_modificative',
+        'date_limite_depot' => 'required|date',
+        'statut' => 'required|in:depose,non_depose,en_attente',
+        'jours_retard' => 'nullable|integer|min:0',
+        'observations' => 'nullable|string|max:1000',
+        'validation' => 'boolean'
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    // Vérifier les doublons (exclure l'enregistrement actuel)
+    $existingDepot = Depot_compte::where('commune_id', $request->commune_id)
+                                 ->where('annee_exercice', $request->annee_exercice)
+                                 ->where('type', $request->type)
+                                 ->where('id', '!=', $depotCompte->id)
+                                 ->first();
+
+    if ($existingDepot) {
+        return redirect()->back()
+            ->with('error', 'Un dépôt de compte de type "' . $request->type . '" existe déjà pour cette commune pour l\'année ' . $request->annee_exercice)
+            ->withInput();
+    }
+
+    DB::beginTransaction();
+    try {
+        // Calculer les jours de retard
+        $joursRetard = $request->jours_retard;
+        if ($joursRetard === null) {
+            $dateDepot = Carbon::parse($request->date_depot);
+            $dateLimite = Carbon::parse($request->date_limite_depot);
+            $joursRetard = $dateDepot > $dateLimite ? $dateDepot->diffInDays($dateLimite) : 0;
+        }
+
+        $depotCompte->update([
+            'commune_id' => $request->commune_id,
+            'receveur_id' => $request->receveur_id,
+            'date_depot' => $request->date_depot,
+            'date_depot_effectif' => $request->date_depot,
+            'annee_exercice' => $request->annee_exercice,
+            'type' => $request->type,
+            'date_limite_depot' => $request->date_limite_depot,
+            'statut' => $request->statut,
+            'jours_retard' => $joursRetard,
+            'observations' => $request->observations,
+            'validation' => $request->has('validation') ? true : false
+        ]);
+
+        DB::commit();
+        
+        return redirect()->route('depot-comptes.show', $depotCompte)
+                       ->with('success', 'Dépôt de compte mis à jour avec succès.');
+    } catch (\Exception $e) {
+        DB::rollback();
+        return back()->withInput()
+                    ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
+    }
+}
+
+  
 
     /**
      * Suppression d'un dépôt de compte

@@ -80,7 +80,7 @@
                                            value="{{ old('montant') }}" 
                                            step="0.01"
                                            min="0"
-                                           max="999999999.99"
+                                           max="9999999999999999.99"
                                            placeholder="Ex: 5000000"
                                            required>
                                     <span class="input-group-text">FCFA</span>
@@ -89,7 +89,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-text">
-                                    Montant maximum: 999,999,999.99 FCFA
+                                    Montant maximum: 999,999,999,999,9999.99 FCFA
                                 </div>
                                 <div id="montantFormate" class="text-primary fw-bold mt-1"></div>
                             </div>
