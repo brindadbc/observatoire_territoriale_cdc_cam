@@ -5,21 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class RessourcesPropres extends Model
+class RessourcesTransfereesEtat extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'commune_id', 'source', 'type_ressource', 
-        'montant', 'date_generation', 'description'
+        'commune_id', 'type_ressource', 'description', 
+        'montant', 'date_reception', 'projet_associe', 'reference'
     ];
 protected $casts = [
-    'date_generation' => 'datetime',
-];
-protected $dates = [
-    'date_generation',
-    'created_at',
-    'updated_at',
+    'date_reception' => 'date',
+    // other casts if needed
 ];
     public function commune()
     {

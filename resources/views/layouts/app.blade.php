@@ -383,17 +383,21 @@
                             </a>
                             <ul class="submenu" id="ressources">
                                 <li class="{{ request()->is('ressources-transferees*') ? 'active' : '' }}">
-                                    {{-- <a href="{{ route('ressources-transferees.index') }}"> --}}
+                                    <a href="{{ route('ressources-etat.index') }}">
                                         <span>Ressources transférées État</span>
                                     </a>
                                 </li>
                                 <li class="{{ request()->is('ressources-propres*') ? 'active' : '' }}">
+<<<<<<< HEAD
                                     <a href="{{ route('ressources-commune.index') }}">
+=======
+                                     <a href="{{ route('ressources-commune.index') }}"> 
+>>>>>>> 26296e8 (manas)
                                         <span>Ressources propres</span>
                                     </a>
                                 </li>
                                 <li class="{{ request()->is('donations-exterieures*') ? 'active' : '' }}">
-                                    {{-- <a href="{{ route('donations-exterieures.index') }}"> --}}
+                                    <a href="{{ route('dons-exterieurs.index') }}">
                                         <span>Donations extérieures</span>
                                     </a>
                                 </li>

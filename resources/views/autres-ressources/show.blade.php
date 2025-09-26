@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-color: #2ecc71;
+            --primary-color: #6c757d;
             --secondary-color: #2c3e50;
             --info-color: #3498db;
             --light-color: #ecf0f1;
@@ -128,13 +128,13 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h1><i class="bi bi-cash-stack me-2"></i>Détails de la Ressource</h1>
+                    <h1><i class="bi bi-collection me-2"></i>Détails de la Ressource</h1>
                 </div>
                 <div class="col-md-6 text-end">
-                    <a href="{{ route('ressources-commune.index') }}" class="btn btn-outline-light me-2">
+                    <a href="{{ route('autres-ressources.index') }}" class="btn btn-outline-light me-2">
                         <i class="bi bi-arrow-left"></i> Retour à la liste
                     </a>
-                    <a href="{{ route('ressources-commune.edit', $ressource) }}" class="btn btn-light">
+                    <a href="{{ route('autres-ressources.edit', $ressource) }}" class="btn btn-light">
                         <i class="bi bi-pencil"></i> Modifier
                     </a>
                 </div>
@@ -175,22 +175,17 @@
                         </div>
                         
                         <div class="info-item">
-                            <span class="info-label">Montant:</span>
+                            <span class="info-label">Montant/Valeur:</span>
                             <span class="info-value montant">
                                 {{ number_format($ressource->montant, 0, ',', ' ') }} FCFA
                             </span>
                         </div>
                         
                         <div class="info-item">
-                            <span class="info-label">Date de génération:</span>
+                            <span class="info-label">Date de réception:</span>
                             <span class="info-value">
-<<<<<<< HEAD
-                                {{-- {{ $ressource->date_generation->format('d/m/Y') }} --}}
-                                {{-- <div class="text-muted small">{{ $ressource->date_generation->diffForHumans() }}</div> --}}
-=======
-                                {{ $ressource->date_generation->format('d/m/Y') }}
-                                <div class="text-muted small">{{ $ressource->date_generation->diffForHumans() }}</div>
->>>>>>> 26296e8 (manas)
+                                {{ $ressource->date_reception->format('d/m/Y') }}
+                                <div class="text-muted small">{{ $ressource->date_reception->diffForHumans() }}</div>
                             </span>
                         </div>
                         
@@ -239,13 +234,9 @@
                                     <i class="bi bi-cash-coin text-success"></i>
                                 </div>
                                 <div class="timeline-content">
-                                    <h6>Génération</h6>
-<<<<<<< HEAD
-                                    {{-- <p class="mb-1 text-muted small">{{ $ressource->date_generation->format('d/m/Y') }}</p> --}}
-=======
-                                    <p class="mb-1 text-muted small">{{ $ressource->date_generation->format('d/m/Y') }}</p>
->>>>>>> 26296e8 (manas)
-                                    <p class="mb-0">Date effective de génération</p>
+                                    <h6>Réception</h6>
+                                    <p class="mb-1 text-muted small">{{ $ressource->date_reception->format('d/m/Y') }}</p>
+                                    <p class="mb-0">Date effective de réception</p>
                                 </div>
                             </div>
                             
@@ -269,7 +260,7 @@
                     </div>
                     <div class="card-body">
                         <p class="text-muted">Cette action est irréversible. Soyez certain avant de continuer.</p>
-                        <form action="{{ route('ressources-commune.destroy', $ressource) }}" method="POST" id="deleteForm">
+                        <form action="{{ route('autres-ressources.destroy', $ressource) }}" method="POST" id="deleteForm">
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-outline-danger w-100" onclick="confirmDelete()">

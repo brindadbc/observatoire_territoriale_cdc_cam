@@ -19,6 +19,7 @@ class AutresRessources extends Model
         return $this->belongsTo(Commune::class);
     }
 }
+<<<<<<< HEAD
 
 
 
@@ -60,3 +61,5 @@ class AutresRessources extends Model
 //         return 0;
 //     }
 // }
+=======
+>>>>>>> 26296e8 (manas)

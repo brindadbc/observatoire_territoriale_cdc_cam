@@ -5,8 +5,12 @@ namespace App\Models;
 use App\Http\Controllers\Dette_FeicomController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+=======
+use Illuminate\Database\Eloquent\Relations\HasMany;
+>>>>>>> 26296e8 (manas)
 
 class Commune extends Model
 {
@@ -137,6 +141,7 @@ public function dettesFiscale()
         return $this->hasMany(Defaillance::class);
     }
 
+<<<<<<< HEAD
     // public function indicateursPerformance()
     // {
     //     return $this->hasMany(IndicateurPerformance::class);
@@ -301,3 +306,15 @@ public function getDonneesFinancieresCompletes($annee, $periode = 'annuelle')
 }
     
 }
+=======
+    public function ressourcesTransfereesEtat(): HasMany
+    {
+        return $this->hasMany(RessourcesTransfereesEtat::class);
+    }
+    public function DonationsExterieures(): HasMany
+{
+    return $this->hasMany(DonationsExterieures::class, 'commune_id');
+}
+}
+
+>>>>>>> 26296e8 (manas)

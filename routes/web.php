@@ -21,7 +21,18 @@ use App\Http\Controllers\RetardController;
 use App\Http\Controllers\StatistiquesController;
 use App\Http\Controllers\Taux_RealisationController;
 use App\Http\Controllers\TauxRealisationController;
+use App\Http\Controllers\RessourceEtatController;
+use App\Http\Controllers\DonationsExterieuresController;
+use App\Http\Controllers\RessourcesTransfereesEtatController;
+use App\Http\Controllers\RessourcesPropresController;
+use App\Http\Controllers\AutresRessourcesController;
 use App\Models\Defaillance;
+use App\Models\Infrastructure;
+use App\Models\Commune;
+use App\Models\ServiceSocial;
+use App\Http\Controllers\InfrastructureController;
+use App\Http\Controllers\EquipementController;
+use App\Http\Controllers\ServiceSocialController;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -795,6 +806,51 @@ Route::prefix('api')->name('api.')->group(function () {
     // Route::resource('rapports-performance', RapportsPerformanceController::class);
     // Route::resource('rapports-gouvernance', RapportsGouvernanceController::class);
     // Route::resource('synthese-annuelle', SyntheseAnnuelleController::class);
+
+
+
+
+Route::resource('ressources-etat', RessourcesTransfereesEtatController::class);
+// routes/web.php
+Route::resource('ressources-commune', RessourcesPropresController::class);
+Route::delete('ressources-commune/{ressource}', [RessourcesPropresController::class, 'destroy'])
+    ->name('ressources-commune.destroy');
+   Route::put('ressources-commune/{id}', [RessourcesPropresController::class, 'update'])
+    ->name('ressources-commune.update');
+Route::resource('dons-exterieurs', DonationsExterieuresController::class);
+Route::resource('autres-ressources', AutresRessourcesController::class);
+
+
+Route::resource('infrastructures', InfrastructureController::class);
+Route::resource('equipements', EquipementController::class);
+Route::resource('services-sociaux', ServiceSocialController::class);
+Route::resource('fonctionnements', FonctionnementController::class);
+
+// Dashboard
+// Route::get('/dashboard', function () {
+//     $communes = Commune::count();
+//     $infrastructures = Infrastructure::count();
+//     $services = ServiceSocial::count();
+    
+//     return view('dashboard', compact('communes', 'infrastructures', 'services'));
+// })->name('dashboard');
+
+// Homepage
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Routes spécifiques pour les ressources par commune
+Route::get('communes/{commune}/ressources-etat', [RessourcesTransféréesÉtatController::class, 'byCommune'])->name('communes.ressources-etat');
+// Route::get('communes/{commune}/ressources-commune', [RessourcesPropresController::class, 'byCommune'])->name('communes.ressources-commune');
+// Route::get('communes/{commune}/dons-exterieurs', [DonExterieureController::class, 'byCommune'])->name('communes.dons-exterieurs');
+Route::get('communes/{commune}/autres-ressources', [AutresRessourceController::class, 'byCommune'])->name('communes.autres-ressources');
+
+// Routes pour l'API (si nécessaire)
+Route::prefix('api')->group(function () {
+    Route::get('communes', [CommunesController::class, 'apiIndex']);
+    Route::get('communes/{commune}/ressources', [CommunesController::class, 'apiRessources']);
+});
 // });
 
 // Routes API pour les données dynamiques
